@@ -1,9 +1,4 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,7 +6,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 // import { useColorScheme } from "@/components/useColorScheme";
-import { useColorScheme } from "react-native";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import "../global.css";
 
 export {
@@ -52,11 +47,23 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <ThemeProvider /* value={colorScheme === "dark" ? DarkTheme : DefaultTheme} */
+    >
+      <Stack
+      /*  screenOptions={{
+          headerStyle: {
+            backgroundColor:
+              resolvedTheme === "dark"
+                ? colors.neutral[950]
+                : colors.neutral[50],
+          },
+          headerTintColor:
+            resolvedTheme === "dark"
+              ? colors.neutral[300]
+              : colors.neutral[800],
+        }} */
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
       </Stack>

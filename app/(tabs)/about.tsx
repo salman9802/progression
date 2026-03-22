@@ -1,21 +1,74 @@
+import { useTheme } from "@/providers/ThemeProvider";
 import * as Application from "expo-application";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function AboutScreen() {
+  const { theme, updatePreference } = useTheme();
+
   return (
-    <View className="flex-1 items-center justify-center py-6 px-3">
-      <Text className="text-4xl font-bold text-neutral-800 mb-4">
+    <View className="flex-1 items-center justify-center py-6 px-3 w-full bg-neutral-100 dark:bg-neutral-900">
+      <Text className="text-4xl font-bold text-neutral-800 dark:text-neutral-300 mb-4">
         About Screen
       </Text>
-      <View className="text-neutral-800 flex-1 flex flex-col gap-2 self-start">
-        <Text>
-          Developed by Salman (<Text className="italic">prototype</Text>)
+      <View className=" flex-1 flex flex-col gap-2 self-start w-full">
+        <Text className="text-neutral-800 dark:text-neutral-300">
+          <Text className="font-bold text-primary-500">Developed by:</Text>{" "}
+          Salman
         </Text>
-        <Text>
+        <Text className="text-neutral-800 dark:text-neutral-300">
           <Text className="font-bold text-primary-500">Version & Build:</Text>{" "}
           {Application.nativeApplicationVersion} (
-          {Application.nativeBuildVersion})
+          {Application.nativeBuildVersion}) (
+          <Text className="italic">prototype</Text>)
         </Text>
+
+        {/* Settings */}
+        <View className="flex flex-col gap-6 mt-4 p-3 rounded-md bg-neutral-50 dark:bg-neutral-800 w-full">
+          <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
+            Settings
+          </Text>
+          {/* Theme */}
+          {/* <Text className="text-neutral-800 dark:text-neutral-300">
+            Current Theme: {theme}
+          </Text> */}
+          <View className="flex flex-col w-full gap-3">
+            <Text className="text-xl font-medium text-neutral-700 dark:text-neutral-300">
+              Theme
+            </Text>
+            <View className="flex flex-row gap-1.5">
+              <Pressable
+                className={`bg-neutral-100 dark:bg-neutral-700 rounded-md flex-1 p-4 ${theme === "light" && "border-2 border-primary-500 font-semibold"}`}
+                onPress={() => updatePreference("light")}
+              >
+                <Text
+                  className={`${theme === "light" ? "text-primary-500 dark:text-primary-500" : "text-neutral-700 dark:text-neutral-300"}`}
+                >
+                  Light
+                </Text>
+              </Pressable>
+              <Pressable
+                className={`bg-neutral-100 dark:bg-neutral-700 rounded-md flex-1 p-4 ${theme === "dark" && "border-2 border-primary-500 font-semibold"}`}
+                onPress={() => updatePreference("dark")}
+              >
+                <Text
+                  className={`${theme === "dark" ? "text-primary-500 dark:text-primary-500" : "text-neutral-700 dark:text-neutral-300"}`}
+                >
+                  Dark
+                </Text>
+              </Pressable>
+              <Pressable
+                className={`bg-neutral-100 dark:bg-neutral-700 rounded-md flex-1 p-4 ${theme === "system" && "border-2 border-primary-500 font-semibold"}`}
+                onPress={() => updatePreference("system")}
+              >
+                <Text
+                  className={`${theme === "system" ? "text-primary-500 dark:text-primary-500" : "text-neutral-700 dark:text-neutral-300"}`}
+                >
+                  System
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
       </View>
 
       {/* <Text>{Uniwind.currentTheme}</Text> */}
