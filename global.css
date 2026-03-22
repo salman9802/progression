@@ -1,0 +1,6 @@
+/* @import "tailwindcss";
+@import "uniwind"; */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
