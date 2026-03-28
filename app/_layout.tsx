@@ -2,11 +2,13 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 // import { useColorScheme } from "@/components/useColorScheme";
+import { getDb, initDb } from "@/db";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { Text } from "react-native";
 import "../global.css";
 
 export {
@@ -28,6 +30,8 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const [isDbReady, setIsDbReady] = useState(false);
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -38,6 +42,24 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // initialize sqlite
+  useEffect(() => {
+    initDb()
+      .then(() => setIsDbReady(true))
+      .catch((e) => {
+        console.error("DB initialization failed");
+        console.error(e);
+      });
+
+    const db = getDb();
+    const userVersion = db.getFirstSync<{ user_version: number }>(
+      "PRAGMA user_version;"
+    );
+    console.log("DB version: ", userVersion);
+  }, []);
+
+  if (!isDbReady) return <Text>Initializing DB</Text>;
 
   if (!loaded) {
     return null;
