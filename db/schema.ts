@@ -12,6 +12,15 @@ export type TProject = {
   updated_at: number;
 };
 
+export type TProjectDetails = TProject & {
+  task_count: number;
+  total_estimated_seconds: number;
+  total_elapsed_seconds: number;
+  // convenience — computed from the above
+  total_estimated_minutes: number;
+  total_elapsed_minutes: number;
+};
+
 export type TTask = {
   id: string;
   project_id: string;

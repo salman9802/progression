@@ -2,6 +2,7 @@ import CTextInput from "@/components/CTextInput";
 import { getDb } from "@/db";
 import { TProject } from "@/db/schema";
 import * as Crypto from "expo-crypto";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -173,6 +174,7 @@ const AddProjectScreen = () => {
         type: "success",
         text1: "Project added",
       });
+      router.push("/");
     } catch (error) {
       Toast.show({
         type: "error",

@@ -12,6 +12,9 @@ module.exports = {
   theme: {
     extend: {
       colors: colors,
+      fontFamily: {
+        mono: ["SpaceMono"], // link to loaded font
+      },
     },
   },
   plugins: [],
