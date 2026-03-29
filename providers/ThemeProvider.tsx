@@ -96,6 +96,7 @@ import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import React from "react";
 import { Appearance, View } from "react-native";
+import colors from "tailwindcss/colors";
 
 type TTheme = "light" | "dark";
 type TThemeType = "light" | "dark" | "system";
@@ -159,7 +160,14 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     <ThemeContext.Provider
       value={{ theme: preference, resolvedTheme, updatePreference }}
     >
-      <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
+      <StatusBar
+        style={resolvedTheme === "dark" ? "light" : "dark"}
+        translucent
+        // backgroundColor="transparent"
+        backgroundColor={
+          resolvedTheme === "light" ? colors.neutral[100] : colors.neutral[900]
+        }
+      />
       <View className="flex-1">{children}</View>
     </ThemeContext.Provider>
   );

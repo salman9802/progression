@@ -24,7 +24,7 @@ export const migrations: TMigration[] = [
                 id TEXT PRIMARY KEY NOT NULL,
 
                 project_id TEXT NOT NULL REFERENCES projects(id) ON UPDATE CASCADE ON DELETE CASCADE,
-                parent_id TEXT NOT NULL REFERENCES tasks(id) ON UPDATE CASCADE ON DELETE CASCADE,
+                parent_id TEXT REFERENCES tasks(id) ON UPDATE CASCADE ON DELETE CASCADE,
                 
                 name TEXT NOT NULL,
                 description TEXT,
