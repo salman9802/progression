@@ -142,6 +142,14 @@ function RootLayoutNav() {
               presentation: "modal",
             }}
           />
+          <Stack.Screen
+            name="add-task"
+            options={{
+              title: "Add Task",
+              header: () => <ScreenHeader title="Add Task" />,
+              presentation: "modal",
+            }}
+          />
         </Stack>
         <Toast config={toastConfig} />
       </QueryClientProvider>

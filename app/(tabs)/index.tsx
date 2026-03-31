@@ -166,21 +166,40 @@ export default function ProjectsScreen() {
 
       {/* TODO: change to add task in the current project */}
       {/* Add project (floating) */}
-      <TouchableOpacity
-        className="absolute right-5 bottom-7 p-4 bg-primary-500 rounded-full"
-        onPress={() => {
-          router.push("/add-project");
-        }}
+      <QueryState
+        query={projectDetailsQuery}
+        loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
+        emptyFallback={
+          <View className="h-[250] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+            <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+              No data
+            </Text>
+          </View>
+        }
       >
-        <Entypo
-          name="add-to-list"
-          size={24}
-          className="text-neutral-50" /* color={theme.light} */
-          color={
-            resolvedTheme === "light" ? colors.neutral[900] : colors.neutral[50]
-          }
-        />
-      </TouchableOpacity>
+        {(data) => (
+          <TouchableOpacity
+            className={`absolute right-5 bottom-7 p-4 rounded-full ${data ? data.color : "bg-primary-500"}`}
+            onPress={() => {
+              router.push({
+                pathname: "/add-task",
+                params: { project: JSON.stringify(data) },
+              });
+            }}
+          >
+            <Entypo
+              name="add-to-list"
+              size={24}
+              className="text-neutral-50" /* color={theme.light} */
+              color={
+                resolvedTheme === "light"
+                  ? colors.neutral[900]
+                  : colors.neutral[50]
+              }
+            />
+          </TouchableOpacity>
+        )}
+      </QueryState>
 
       {/* <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" /> */}
       {/* <EditScreenInfo path="app/(tabs)/index.tsx" /> */}

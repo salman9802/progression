@@ -29,7 +29,7 @@ export type TTask = {
   description: string | null;
   estimated_seconds: number;
   elapsed_seconds: number;
-  timer_started_at: number;
+  timer_started_at: number | null;
   position: number;
   created_at: number;
   updated_at: number;
