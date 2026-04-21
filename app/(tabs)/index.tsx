@@ -2,10 +2,11 @@ import appColors from "@/colors";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
 import { useProjectDetails, useProjects } from "@/hooks/projects";
+import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -17,6 +18,8 @@ import {
 import colors from "tailwindcss/colors";
 
 export default function ProjectsScreen() {
+  const logger = useMemo(() => new Logger("ProjectsScreen"), []);
+
   const { resolvedTheme } = useTheme();
   const [currentProjectId, setCurrentProjectId] = useState<string>();
 
@@ -29,6 +32,21 @@ export default function ProjectsScreen() {
       if (projectsQuery.data.length > 0)
         setCurrentProjectId(projectsQuery.data[0].id);
   }, [projectsQuery.data]);
+
+  // console.log("-------------------------");
+  // console.log(
+  //   "projectsQuery.data: ",
+  //   JSON.stringify(projectsQuery.data, null, 2),
+  // );
+  // console.log("-------------------------");
+  // console.log(
+  //   "projectDetailsQuery.data: ",
+  //   JSON.stringify(projectDetailsQuery.data, null, 2),
+  // );
+  // console.log("-------------------------");
+
+  logger.log(projectsQuery.data);
+  logger.log(projectDetailsQuery.data);
 
   return (
     <View className="flex-1 items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
@@ -101,8 +119,9 @@ export default function ProjectsScreen() {
         }
       >
         {(data) => (
-          <View className="h-[250] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
-            <Text className="text-4xl text-neutral-800 dark:text-neutral-300">
+          <View className="min-h-[250] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
+            {/* Project name */}
+            <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
               {data?.name}
             </Text>
             {data?.description && (
@@ -111,10 +130,129 @@ export default function ProjectsScreen() {
               </Text>
             )}
 
-            <Text className="text-xl mt-4 flex-row text-neutral-800 dark:text-neutral-300">
-              <Text>Tasks: </Text>
+            {/* <Text className="text-xl mt-4 flex-row text-neutral-800 dark:text-neutral-300">
+              <Text>Tasks Completed: </Text>
               <Text>{data?.task_count}</Text>
-            </Text>
+            </Text> */}
+
+            {/* Task completion progress bar */}
+            <View
+              className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+            >
+              <View
+                className="h-full bg-blue-500 rounded-[inherit]"
+                // TODO: calculate progress
+                style={{ width: `${Math.min(Math.max(32, 0), 100)}%` }}
+              />
+            </View>
+
+            <View className="flex-row gap-2">
+              {/* Tasks Completed */}
+              <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                <View className="flex-row gap-2">
+                  <Ionicons
+                    name="timer-outline"
+                    size={20}
+                    color={
+                      resolvedTheme === "light"
+                        ? colors.neutral[500]
+                        : colors.neutral[400]
+                    }
+                  />
+                  <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Tasks Completed
+                  </Text>
+                </View>
+                <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                  {data?.task_count}
+                </Text>
+              </View>
+
+              {/* Total Tasks */}
+              <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                <View className="flex-row gap-2">
+                  <Ionicons
+                    name="timer-outline"
+                    size={20}
+                    color={
+                      resolvedTheme === "light"
+                        ? colors.neutral[500]
+                        : colors.neutral[400]
+                    }
+                  />
+                  <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Total Tasks
+                  </Text>
+                </View>
+                <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                  {data?.task_count}
+                </Text>
+              </View>
+            </View>
+
+            {/* <Text className="text-xl mt-4 flex-row text-neutral-800 dark:text-neutral-300">
+              <View className="flex-row gap-4">
+                <Ionicons
+                  name="timer-outline"
+                  size={24}
+                  color={
+                    resolvedTheme === "light"
+                      ? colors.neutral[800]
+                      : colors.neutral[300]
+                  }
+                />
+                <Text>Time Spent: </Text>
+              </View>
+              <Text className="font-mono">
+                {data?.total_elapsed_minutes}m ({data?.total_elapsed_seconds}s)
+              </Text>
+            </Text> */}
+
+            <View className="flex-row gap-2">
+              {/* Time Spent */}
+              <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                <View className="flex-row gap-2">
+                  <Ionicons
+                    name="timer-outline"
+                    size={20}
+                    color={
+                      resolvedTheme === "light"
+                        ? colors.neutral[500]
+                        : colors.neutral[400]
+                    }
+                  />
+                  <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Time Spent
+                  </Text>
+                </View>
+                <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                  {data?.total_elapsed_minutes}m ({data?.total_elapsed_minutes}
+                  s)
+                </Text>
+              </View>
+
+              {/* Time Estimated */}
+              <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                <View className="flex-row gap-2">
+                  <Ionicons
+                    name="timer-outline"
+                    size={20}
+                    color={
+                      resolvedTheme === "light"
+                        ? colors.neutral[500]
+                        : colors.neutral[400]
+                    }
+                  />
+                  <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                    Time Estimated
+                  </Text>
+                </View>
+                <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                  {data?.total_estimated_minutes}m (
+                  {data?.total_estimated_seconds}s)
+                </Text>
+              </View>
+            </View>
 
             <View className="mt-4 gap-2">
               <View className="flex-row gap-4">
@@ -133,13 +271,14 @@ export default function ProjectsScreen() {
               </View>
               {/* <Text>{data?.total_elapsed_minutes}m</Text> */}
               <Text className="font-mono text-neutral-800 dark:text-neutral-300">
-                0m (
+                {data?.total_elapsed_minutes}m (
                 <Text className="text-neutral-600 dark:text-neutral-500">
-                  0s
+                  {data?.total_elapsed_seconds}s
                 </Text>
                 )
               </Text>
             </View>
+            {/* <View className="mt-4 gap-2 border border-red-500"></View> */}
           </View>
         )}
       </QueryState>
