@@ -14,6 +14,7 @@ export type TProject = {
 
 export type TProjectDetails = TProject & {
   task_count: number;
+  completed_task_count: number;
   total_estimated_seconds: number;
   total_elapsed_seconds: number;
   // convenience — computed from the above
@@ -29,6 +30,7 @@ export type TTask = {
   description: string | null;
   estimated_seconds: number;
   elapsed_seconds: number;
+  completed: 0 | 1;
   timer_started_at: number | null;
   position: number;
   created_at: number;

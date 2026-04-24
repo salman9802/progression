@@ -5,7 +5,7 @@ import { TProject, TProjectDetails } from "../schema";
 
 export function getProjects(): TProject[] {
   return getDb().getAllSync<TProject>(
-    `SELECT * FROM projects ORDER BY position ASC, created_at ASC`
+    `SELECT * FROM projects ORDER BY position ASC, created_at ASC`,
   );
 }
 
@@ -18,7 +18,7 @@ export function getProjectById(id: string): TProject | null {
 }
 
 export async function getProjectDetails(
-  id: string | undefined
+  id: string | undefined,
 ): Promise<TProjectDetails | null> {
   if (id == undefined) return null;
   const row = getDb().getFirstSync<
@@ -27,23 +27,24 @@ export async function getProjectDetails(
     `SELECT
       p.*,
       COUNT(t.id)                             AS task_count,
+      SUM(CASE WHEN t.completed = 1 THEN 1 ELSE 0 END) AS completed_task_count,
       COALESCE(SUM(t.estimated_seconds), 0)   AS total_estimated_seconds,
       COALESCE(SUM(t.elapsed_seconds), 0)     AS total_elapsed_seconds
     FROM projects p
     LEFT JOIN (
       WITH RECURSIVE all_tasks AS (
-        SELECT id, project_id, estimated_seconds, elapsed_seconds
+        SELECT id, project_id, estimated_seconds, elapsed_seconds, completed
         FROM tasks WHERE project_id = ?
         UNION ALL
-        SELECT t.id, t.project_id, t.estimated_seconds, t.elapsed_seconds
-        FROM tasks t
-        INNER JOIN all_tasks a ON t.parent_id = a.id
+        SELECT child.id, child.project_id, child.estimated_seconds, child.elapsed_seconds, child.completed
+        FROM tasks child
+        INNER JOIN all_tasks a ON child.parent_id = a.id
       )
       SELECT * FROM all_tasks
     ) t ON t.project_id = p.id
     WHERE p.id = ?
     GROUP BY p.id`,
-    [id, id]
+    [id, id],
   );
 
   if (!row) return null;
@@ -69,7 +70,7 @@ export function createProject(input: CreateProjectInput): TProject {
 
   // Put new projects at the end of the list
   const last = getDb().getFirstSync<{ max_position: number | null }>(
-    `SELECT MAX(position) as max_position FROM projects`
+    `SELECT MAX(position) as max_position FROM projects`,
   );
   const position = (last?.max_position ?? -1) + 1;
 
@@ -84,7 +85,7 @@ export function createProject(input: CreateProjectInput): TProject {
       position,
       now,
       now,
-    ]
+    ],
   );
 
   return getProjectById(id)!;
@@ -106,7 +107,7 @@ export function updateProject(id: string, input: UpdateProjectInput): TProject {
 
   getDb().runSync(
     `UPDATE projects SET ${setClauses}, updated_at = ? WHERE id = ?`,
-    [...values, Date.now(), id]
+    [...values, Date.now(), id],
   );
 
   return getProjectById(id)!;

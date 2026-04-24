@@ -30,6 +30,7 @@ export const migrations: TMigration[] = [
                 description TEXT,
                 estimated_seconds INTEGER,
                 elapsed_seconds INTEGER NOT NULL DEFAULT 0,
+                completed INTEGER NOT NULL DEFAULT 0 CHECK(completed IN (0, 1)),
                 timer_started_at INTEGER DEFAULT NULL,
                 position INTEGER NOT NULL DEFAULT 0,
                 created_at INTEGER NOT NULL,

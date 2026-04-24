@@ -33,18 +33,6 @@ export default function ProjectsScreen() {
         setCurrentProjectId(projectsQuery.data[0].id);
   }, [projectsQuery.data]);
 
-  // console.log("-------------------------");
-  // console.log(
-  //   "projectsQuery.data: ",
-  //   JSON.stringify(projectsQuery.data, null, 2),
-  // );
-  // console.log("-------------------------");
-  // console.log(
-  //   "projectDetailsQuery.data: ",
-  //   JSON.stringify(projectDetailsQuery.data, null, 2),
-  // );
-  // console.log("-------------------------");
-
   logger.log(projectsQuery.data);
   logger.log(projectDetailsQuery.data);
 
@@ -142,7 +130,9 @@ export default function ProjectsScreen() {
               <View
                 className="h-full bg-blue-500 rounded-[inherit]"
                 // TODO: calculate progress
-                style={{ width: `${Math.min(Math.max(32, 0), 100)}%` }}
+                style={{
+                  width: `${Math.min(Math.max(data?.completed_task_count || 0, 0), 100)}%`,
+                }}
               />
             </View>
 
@@ -164,7 +154,7 @@ export default function ProjectsScreen() {
                   </Text>
                 </View>
                 <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                  {data?.task_count}
+                  {data?.completed_task_count}
                 </Text>
               </View>
 
