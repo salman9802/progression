@@ -118,11 +118,6 @@ export default function ProjectsScreen() {
               </Text>
             )}
 
-            {/* <Text className="text-xl mt-4 flex-row text-neutral-800 dark:text-neutral-300">
-              <Text>Tasks Completed: </Text>
-              <Text>{data?.task_count}</Text>
-            </Text> */}
-
             {/* Task completion progress bar */}
             <View
               className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
@@ -180,24 +175,6 @@ export default function ProjectsScreen() {
               </View>
             </View>
 
-            {/* <Text className="text-xl mt-4 flex-row text-neutral-800 dark:text-neutral-300">
-              <View className="flex-row gap-4">
-                <Ionicons
-                  name="timer-outline"
-                  size={24}
-                  color={
-                    resolvedTheme === "light"
-                      ? colors.neutral[800]
-                      : colors.neutral[300]
-                  }
-                />
-                <Text>Time Spent: </Text>
-              </View>
-              <Text className="font-mono">
-                {data?.total_elapsed_minutes}m ({data?.total_elapsed_seconds}s)
-              </Text>
-            </Text> */}
-
             <View className="flex-row gap-2">
               {/* Time Spent */}
               <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
@@ -243,32 +220,6 @@ export default function ProjectsScreen() {
                 </Text>
               </View>
             </View>
-
-            <View className="mt-4 gap-2">
-              <View className="flex-row gap-4">
-                <Ionicons
-                  name="timer-outline"
-                  size={24}
-                  color={
-                    resolvedTheme === "light"
-                      ? colors.neutral[800]
-                      : colors.neutral[300]
-                  }
-                />
-                <Text className="text-xl text-neutral-800 dark:text-neutral-300">
-                  Time spent:{" "}
-                </Text>
-              </View>
-              {/* <Text>{data?.total_elapsed_minutes}m</Text> */}
-              <Text className="font-mono text-neutral-800 dark:text-neutral-300">
-                {data?.total_elapsed_minutes}m (
-                <Text className="text-neutral-600 dark:text-neutral-500">
-                  {data?.total_elapsed_seconds}s
-                </Text>
-                )
-              </Text>
-            </View>
-            {/* <View className="mt-4 gap-2 border border-red-500"></View> */}
           </View>
         )}
       </QueryState>
