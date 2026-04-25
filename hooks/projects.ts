@@ -13,7 +13,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export const projectKeys = {
   all: ["projects"] as const,
   detail: (id: string) => ["projects", id] as const,
-  details: (id: string | undefined) => ["projects", id, "details"] as const,
+  details: (id?: string | undefined) => ["projects-details", id] as const,
 };
 
 export function useProjects() {

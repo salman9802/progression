@@ -40,6 +40,9 @@ export default function TabLayout() {
           resolvedTheme === "dark"
             ? tailwindColors.neutral[300]
             : tailwindColors.neutral[800],
+
+        // ensure responsive layout of input on keyboard
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen
