@@ -1,13 +1,17 @@
+import * as Crypto from "expo-crypto";
+
 import appColors from "@/colors";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
 import TaskFilter, { TaskTab } from "@/components/task/TaskFilter";
 import TaskList from "@/components/task/TaskList";
-import { useProjectDetails, useProjects } from "@/hooks/projects";
-import { useTasksByProjectId } from "@/hooks/tasks";
+import { getDb } from "@/db";
+import { projectKeys, useProjectDetails, useProjects } from "@/hooks/projects";
+import { tasksKeys, useTasksByProjectId } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Entypo, Ionicons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
@@ -25,10 +29,12 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import colors from "tailwindcss/colors";
 
 export default function ProjectsScreen() {
   const logger = useMemo(() => new Logger("ProjectsScreen"), []);
+  const queryClient = useQueryClient();
 
   const [taskTab, setTaskTab] = useState<TaskTab>("pending");
 
@@ -47,10 +53,54 @@ export default function ProjectsScreen() {
   }, [projectsQuery.data]);
 
   // tasks
+  const [quickAddText, setQuickAddText] = useState("");
+
   const tasksQuery = useTasksByProjectId(currentProjectId);
 
-  logger.log(projectsQuery.data);
-  logger.log(projectDetailsQuery.data);
+  const quickAddTask = (task: string) => {
+    const db = getDb();
+
+    try {
+      const now = Date.now();
+      db.runSync(
+        "INSERT INTO tasks (id, project_id, parent_id, name, description, estimated_seconds, elapsed_seconds, timer_started_at, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          Crypto.randomUUID(),
+          currentProjectId || null,
+          null,
+          task,
+          "",
+          0,
+          0,
+          null,
+          0,
+          now,
+          now,
+        ],
+      );
+      Toast.show({
+        type: "success",
+        text1: "Task added",
+      });
+      // router.push("/");
+      [(projectKeys.details()[0], tasksKeys.byProjectId()[0])].map((key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key],
+        });
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to add task",
+        text2: JSON.stringify(error),
+      });
+      console.error("Failed to add task");
+      console.error(error);
+    }
+  };
+
+  // logger.log(projectsQuery.data);
+  // logger.log(projectDetailsQuery.data);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -285,11 +335,20 @@ export default function ProjectsScreen() {
                 />
                 <TextInput
                   className="px-2 h-[32] text-sm flex-1"
-                  placeholder="Quick add"
+                  placeholder="Quick Add Task"
                   style={{
                     margin: 0,
                     padding: 0,
                     textAlignVertical: "center",
+                  }}
+                  value={quickAddText}
+                  onChangeText={setQuickAddText}
+                  returnKeyType="done"
+                  onSubmitEditing={() => {
+                    if (!quickAddText.trim()) return;
+
+                    quickAddTask(quickAddText);
+                    setQuickAddText("");
                   }}
                 />
               </View>
