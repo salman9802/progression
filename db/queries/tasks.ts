@@ -34,3 +34,23 @@ export async function markTaskCompleted({
     `UPDATE tasks SET completed = ${completed} WHERE id = '${id}'`,
   );
 }
+
+export async function startTimer(id: string) {
+  getDb().execSync(
+    `UPDATE tasks SET timer_started_at = CURRENT_UNIX_TIMESTAMP WHERE id = '${id}'`,
+  );
+}
+
+export async function stopTimer({
+  id,
+  elapsed,
+}: {
+  id: string;
+  elapsed: number;
+}) {
+  const elapsedSeconds = Math.floor(elapsed / 1000);
+
+  getDb().execSync(
+    `UPDATE tasks SET elapsed_seconds = elapsed_seconds + ${elapsedSeconds}, timer_started_at = NULL WHERE id = '${id}'`,
+  );
+}

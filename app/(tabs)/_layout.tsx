@@ -1,23 +1,53 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import tailwindColors from "tailwindcss/colors";
 
 import colors from "@/colors";
+import HeaderTimerButton from "@/components/task/HeaderTimerButton";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
+import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { AntDesign } from "@expo/vector-icons";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 
 export default function TabLayout() {
+  const logger = useMemo(() => new Logger("TabLayout"), []);
+
   const colorScheme = useColorScheme();
   const { resolvedTheme } = useTheme();
+
+  // const { activeTask, startTimer, stopTimer } = useTimer();
 
   return (
     <Tabs
       screenOptions={{
+        // headerRight: () => {
+        //   const { activeTask, startTimer, stopTimer } = useTimer();
+
+        //   // ${activeTask && "animate-spin"}
+        //   logger.log({
+        //     activeTask,
+        //   });
+
+        //   return (
+        //     <Pressable
+        //       disabled={activeTask == null}
+        //       className={`mr-4 p-3 bg-primary-500 rounded-full flex items-center justify-center disabled:opacity-50 ${activeTask && "animate-spin"}`}
+        //       onPress={() => stopTimer()}
+        //     >
+        //       {activeTask ? (
+        //         <Feather name="pause" size={18} color="white" />
+        //       ) : (
+        //         <Feather name="play" size={18} color="white" />
+        //       )}
+        //     </Pressable>
+        //   );
+        // },
+        headerRight: () => <HeaderTimerButton />,
+
         tabBarStyle: {
           backgroundColor:
             resolvedTheme === "dark"

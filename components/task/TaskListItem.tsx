@@ -2,9 +2,11 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 
 // import CheckBox from "@react-native-community/checkbox";
+import { useTimer } from "@/contexts/timer";
 import { TTaskDetails } from "@/db/schema";
 import { useMarkTaskCompleted } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
+import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import Toast from "react-native-toast-message";
 
@@ -15,6 +17,8 @@ type TaskItemProps = {
 
 const TaskListItem = ({ task, onEdit }: TaskItemProps) => {
   const logger = React.useMemo(() => new Logger("TaskItem"), []);
+
+  const { activeTask, startTimer, stopTimer } = useTimer();
 
   // const [completed, setCompleted] = React.useState(task.completed);
   // const [isQuickEditOpen, setIsQuickEditOpen] = React.useState(false);
@@ -82,6 +86,26 @@ const TaskListItem = ({ task, onEdit }: TaskItemProps) => {
 
       {/* Right Side */}
       <View className="flex-1 flex-row items-start justify-between pb-[20] px-4">
+        <View className="pe-2">
+          {activeTask && activeTask.id === task.id ? (
+            <Pressable
+              onPress={() => {
+                stopTimer();
+              }}
+            >
+              <Feather name="pause" size={18} color="black" />
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => {
+                startTimer(task);
+              }}
+            >
+              <Feather name="play" size={18} color="black" />
+            </Pressable>
+          )}
+        </View>
+
         <Text
           className={`flex-1 text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
         >

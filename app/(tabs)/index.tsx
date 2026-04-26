@@ -114,215 +114,214 @@ export default function ProjectsScreen() {
   // logger.log(projectsQuery.data);
   // logger.log(projectDetailsQuery.data);
 
-  if (true) {
-    return (
-      <View style={{ flex: 1 }} className="bg-neutral-100 dark:bg-neutral-900">
-        <FlatList
-          data={tasks}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TaskListItem task={item} onEdit={() => setEditingTask(item)} />
-          )}
-          contentContainerStyle={{
-            paddingBottom: 18, // space for input
-          }}
-          ListHeaderComponent={
-            <>
-              <View className="flex-1 items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
-                <View className="mb-2 flex-row px-6 items-center justify-around w-full">
-                  {/* Horizontal project list */}
-                  <QueryState
-                    query={projectsQuery}
-                    loadingFallback={
-                      <Skeleton className="my-4 h-[24] w-full mx-3 rounded-md" />
-                    }
-                    emptyFallback={
-                      <Text className="text-neutral-600 items-center self-start dark:text-neutral-500">
-                        No projects. Press + to add one
-                      </Text>
-                    }
-                  >
-                    {(data) => (
-                      <FlatList
-                        className="flex-grow-0 flex-shrink-0 pb-4"
-                        contentContainerStyle={{
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        data={data}
-                        renderItem={({ item }) => (
-                          <Pressable
-                            onPress={() => setCurrentProjectId(item.id)}
-                            className={`px-2 mx-2 ${currentProjectId && currentProjectId === item.id ? "border-b-2 border-primary-500" : ""}`}
-                          >
-                            <Text
-                              className={`${currentProjectId && currentProjectId === item.id ? "font-semibold text-primary-500" : "text-neutral-600 dark:text-neutral-500"}`}
-                            >
-                              {item.name}
-                            </Text>
-                          </Pressable>
-                        )}
-                        horizontal={true}
-                      />
-                    )}
-                  </QueryState>
-
-                  {/* Add Project */}
-                  <TouchableOpacity
-                    className="mr-4 pb-4"
-                    onPress={() => {
-                      router.push("/add-project");
-                    }}
-                  >
-                    <Ionicons
-                      name="add"
-                      size={24}
-                      color={appColors.primary[500]}
-                    />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Project overview card */}
+  return (
+    <View style={{ flex: 1 }} className="bg-neutral-100 dark:bg-neutral-900">
+      <FlatList
+        data={tasks}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TaskListItem task={item} onEdit={() => setEditingTask(item)} />
+        )}
+        contentContainerStyle={{
+          paddingBottom: 18, // space for input
+        }}
+        ListHeaderComponent={
+          <>
+            <View className="items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
+              <View className="mb-2 flex-row px-6 items-center justify-around w-full">
+                {/* Horizontal project list */}
                 <QueryState
-                  query={projectDetailsQuery}
-                  loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
+                  query={projectsQuery}
+                  loadingFallback={
+                    <Skeleton className="my-4 h-[24] w-full mx-3 rounded-md" />
+                  }
                   emptyFallback={
-                    <View className="h-[250] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
-                      <Text className="text-xl text-neutral-600 dark:text-neutral-500">
-                        No data
-                      </Text>
-                    </View>
+                    <Text className="text-neutral-600 items-center self-start dark:text-neutral-500">
+                      No projects. Press + to add one
+                    </Text>
                   }
                 >
                   {(data) => (
-                    <View className="min-h-[250] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
-                      {/* Project name */}
-                      <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
-                        {data?.name}
-                      </Text>
-                      {data?.description && (
-                        <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
-                          {data?.description}
-                        </Text>
+                    <FlatList
+                      className="flex-grow-0 flex-shrink-0 pb-4"
+                      contentContainerStyle={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      data={data}
+                      renderItem={({ item }) => (
+                        <Pressable
+                          onPress={() => setCurrentProjectId(item.id)}
+                          className={`px-2 mx-2 ${currentProjectId && currentProjectId === item.id ? "border-b-2 border-primary-500" : ""}`}
+                        >
+                          <Text
+                            className={`${currentProjectId && currentProjectId === item.id ? "font-semibold text-primary-500" : "text-neutral-600 dark:text-neutral-500"}`}
+                          >
+                            {item.name}
+                          </Text>
+                        </Pressable>
                       )}
-
-                      {/* Task completion progress bar */}
-                      <View
-                        className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
-                      >
-                        <View
-                          className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
-                          style={{
-                            width: data
-                              ? `${Math.floor((data?.completed_task_count / data?.task_count) * 100)}%`
-                              : "0%",
-                          }}
-                        />
-                      </View>
-
-                      <View className="flex-row gap-2">
-                        {/* Tasks Completed */}
-                        <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                          <View className="flex-row gap-2">
-                            <Ionicons
-                              name="timer-outline"
-                              size={20}
-                              color={
-                                resolvedTheme === "light"
-                                  ? colors.neutral[500]
-                                  : colors.neutral[400]
-                              }
-                            />
-                            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                              Tasks Completed
-                            </Text>
-                          </View>
-                          <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.completed_task_count}
-                          </Text>
-                        </View>
-
-                        {/* Total Tasks */}
-                        <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                          <View className="flex-row gap-2">
-                            <Ionicons
-                              name="timer-outline"
-                              size={20}
-                              color={
-                                resolvedTheme === "light"
-                                  ? colors.neutral[500]
-                                  : colors.neutral[400]
-                              }
-                            />
-                            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                              Total Tasks
-                            </Text>
-                          </View>
-                          <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.task_count}
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View className="flex-row gap-2">
-                        {/* Time Spent */}
-                        <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                          <View className="flex-row gap-2">
-                            <Ionicons
-                              name="timer-outline"
-                              size={20}
-                              color={
-                                resolvedTheme === "light"
-                                  ? colors.neutral[500]
-                                  : colors.neutral[400]
-                              }
-                            />
-                            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                              Time Spent
-                            </Text>
-                          </View>
-                          <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.total_elapsed_minutes}m (
-                            {data?.total_elapsed_minutes}
-                            s)
-                          </Text>
-                        </View>
-
-                        {/* Time Estimated */}
-                        <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                          <View className="flex-row gap-2">
-                            <Ionicons
-                              name="timer-outline"
-                              size={20}
-                              color={
-                                resolvedTheme === "light"
-                                  ? colors.neutral[500]
-                                  : colors.neutral[400]
-                              }
-                            />
-                            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                              Time Estimated
-                            </Text>
-                          </View>
-                          <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.total_estimated_minutes}m (
-                            {data?.total_estimated_seconds}s)
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
+                      horizontal={true}
+                    />
                   )}
                 </QueryState>
 
-                <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
-                  <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
-                    Tasks
-                  </Text>
+                {/* Add Project */}
+                <TouchableOpacity
+                  className="mr-4 pb-4"
+                  onPress={() => {
+                    router.push("/add-project");
+                  }}
+                >
+                  <Ionicons
+                    name="add"
+                    size={24}
+                    color={appColors.primary[500]}
+                  />
+                </TouchableOpacity>
+              </View>
 
-                  <TaskFilter onChange={(tab) => setTaskTab(tab)} />
+              {/* Project overview card */}
+              <QueryState
+                query={projectDetailsQuery}
+                loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
+                emptyFallback={
+                  <View className="h-[250] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+                    <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+                      No data
+                    </Text>
+                  </View>
+                }
+              >
+                {(data) => (
+                  <View className="min-h-[250] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
+                    {/* Project name */}
+                    <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
+                      {data?.name}
+                    </Text>
+                    {data?.description && (
+                      <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
+                        {data?.description}
+                      </Text>
+                    )}
 
-                  {/* Quick add task */}
-                  {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
+                    {/* Task completion progress bar */}
+                    <View
+                      className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+                    >
+                      <View
+                        className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
+                        style={{
+                          width: data
+                            ? `${Math.floor((data?.completed_task_count / data?.task_count) * 100)}%`
+                            : "0%",
+                        }}
+                      />
+                    </View>
+
+                    <View className="flex-row gap-2">
+                      {/* Tasks Completed */}
+                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                        <View className="flex-row gap-2">
+                          <Ionicons
+                            name="timer-outline"
+                            size={20}
+                            color={
+                              resolvedTheme === "light"
+                                ? colors.neutral[500]
+                                : colors.neutral[400]
+                            }
+                          />
+                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Tasks Completed
+                          </Text>
+                        </View>
+                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                          {data?.completed_task_count}
+                        </Text>
+                      </View>
+
+                      {/* Total Tasks */}
+                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                        <View className="flex-row gap-2">
+                          <Ionicons
+                            name="timer-outline"
+                            size={20}
+                            color={
+                              resolvedTheme === "light"
+                                ? colors.neutral[500]
+                                : colors.neutral[400]
+                            }
+                          />
+                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Total Tasks
+                          </Text>
+                        </View>
+                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                          {data?.task_count}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-row gap-2">
+                      {/* Time Spent */}
+                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                        <View className="flex-row gap-2">
+                          <Ionicons
+                            name="timer-outline"
+                            size={20}
+                            color={
+                              resolvedTheme === "light"
+                                ? colors.neutral[500]
+                                : colors.neutral[400]
+                            }
+                          />
+                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Time Spent
+                          </Text>
+                        </View>
+                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                          {data?.total_elapsed_minutes}m (
+                          {data?.total_elapsed_minutes}
+                          s)
+                        </Text>
+                      </View>
+
+                      {/* Time Estimated */}
+                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                        <View className="flex-row gap-2">
+                          <Ionicons
+                            name="timer-outline"
+                            size={20}
+                            color={
+                              resolvedTheme === "light"
+                                ? colors.neutral[500]
+                                : colors.neutral[400]
+                            }
+                          />
+                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Time Estimated
+                          </Text>
+                        </View>
+                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                          {data?.total_estimated_minutes}m (
+                          {data?.total_estimated_seconds}s)
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                )}
+              </QueryState>
+
+              <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
+                <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
+                  Tasks
+                </Text>
+
+                <TaskFilter onChange={(tab) => setTaskTab(tab)} />
+
+                {/* Quick add task */}
+                {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
                     <Checkbox
                       className="size-5 rounded-full"
                       color={"#3b82f6"}
@@ -353,157 +352,156 @@ export default function ProjectsScreen() {
                     />
                   </View> */}
 
-                  {/* <TaskList tasks={tasks} /> */}
-                </View>
+                {/* <TaskList tasks={tasks} /> */}
               </View>
-            </>
-          }
-          // ListFooterComponent={
-          //   taskTab === "completed" ? null : (
-          //     <KeyboardAvoidingView
-          //       behavior={Platform.OS === "ios" ? "padding" : "height"}
-          //       keyboardVerticalOffset={80}
-          //       //       style={{ flex: 1 }}
-          //     >
-          //       {/* Quick add task */}
-          //       <View className="-mt-2 px-3 flex-row items-center gap-4">
-          //         <Checkbox
-          //           className="size-5 rounded-full"
-          //           color={"#3b82f6"}
-          //           style={{
-          //             width: 18,
-          //             height: 18,
-          //             borderRadius: 9999,
-          //           }}
-          //           disabled={true}
-          //         />
-          //         <TextInput
-          //           className="px-2 h-[32] text-sm flex-1"
-          //           placeholder="Quick Add Task"
-          //           style={{
-          //             margin: 0,
-          //             padding: 0,
-          //             textAlignVertical: "center",
-          //           }}
-          //           value={quickAddText}
-          //           onChangeText={setQuickAddText}
-          //           returnKeyType="done"
-          //           onSubmitEditing={() => {
-          //             if (!quickAddText.trim()) return;
+            </View>
+          </>
+        }
+        // ListFooterComponent={
+        //   taskTab === "completed" ? null : (
+        //     <KeyboardAvoidingView
+        //       behavior={Platform.OS === "ios" ? "padding" : "height"}
+        //       keyboardVerticalOffset={80}
+        //       //       style={{ flex: 1 }}
+        //     >
+        //       {/* Quick add task */}
+        //       <View className="-mt-2 px-3 flex-row items-center gap-4">
+        //         <Checkbox
+        //           className="size-5 rounded-full"
+        //           color={"#3b82f6"}
+        //           style={{
+        //             width: 18,
+        //             height: 18,
+        //             borderRadius: 9999,
+        //           }}
+        //           disabled={true}
+        //         />
+        //         <TextInput
+        //           className="px-2 h-[32] text-sm flex-1"
+        //           placeholder="Quick Add Task"
+        //           style={{
+        //             margin: 0,
+        //             padding: 0,
+        //             textAlignVertical: "center",
+        //           }}
+        //           value={quickAddText}
+        //           onChangeText={setQuickAddText}
+        //           returnKeyType="done"
+        //           onSubmitEditing={() => {
+        //             if (!quickAddText.trim()) return;
 
-          //             quickAddTask(quickAddText);
-          //             setQuickAddText("");
-          //           }}
-          //         />
-          //       </View>
-          //     </KeyboardAvoidingView>
-          //   )
-          // }
-          keyboardShouldPersistTaps="handled"
-        />
+        //             quickAddTask(quickAddText);
+        //             setQuickAddText("");
+        //           }}
+        //         />
+        //       </View>
+        //     </KeyboardAvoidingView>
+        //   )
+        // }
+        keyboardShouldPersistTaps="handled"
+      />
 
-        {/* Quick Edit Estimate Time */}
-        <Modal
-          visible={editingTask !== null}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setEditingTask(null)}
+      {/* Quick Edit Estimate Time */}
+      <Modal
+        visible={editingTask !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditingTask(null)}
+      >
+        <Pressable
+          className="flex-1 bg-black/40 justify-center items-center"
+          onPress={() => setEditingTask(null)} // Close modal on overlay tap
         >
           <Pressable
-            className="flex-1 bg-black/40 justify-center items-center"
-            onPress={() => setEditingTask(null)} // Close modal on overlay tap
+            className="w-[90%] bg-white dark:bg-neutral-800 rounded-xl p-4"
+            onPress={(e) => e.stopPropagation()} // prevent modal closure on taps other than overlay
           >
-            <Pressable
-              className="w-[90%] bg-white dark:bg-neutral-800 rounded-xl p-4"
-              onPress={(e) => e.stopPropagation()} // prevent modal closure on taps other than overlay
-            >
-              <Text className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
-                Edit Estimate
-              </Text>
+            <Text className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
+              Edit Estimate
+            </Text>
 
-              <View className="relative min-h-[50]">
-                <TextInput
-                  className="absolute inset-0 border border-neutral-400 px-4 flex-1 rounded-md font-mono text-neutral-800 dark:text-neutral-300"
-                  placeholder="Esimate"
-                  value={editingTask?.estimated_minutes?.toString()}
-                />
-                <Text className="absolute right-4 bottom-1 text-neutral-400 font-medium">
-                  mins
-                </Text>
-              </View>
-
-              <QuickEstimateOptions
-                estimatedSeconds={editingTask?.estimated_seconds}
-                onEstimateChange={(estimatedSeconds) => {
-                  setEditingTask((prevTask) => ({
-                    ...prevTask,
-                    estimated_seconds: estimatedSeconds,
-                    estimated_minutes: Math.floor(estimatedSeconds / 60),
-                  }));
-                }}
-              />
-
-              <View className="flex-row mt-3 gap-2">
-                <Pressable
-                  className="px-4 py-2 rounded-md  bg-neutral-100 dark:bg-neutral-700"
-                  onPress={() => setEditingTask(null)}
-                >
-                  <Text className="text-neutral-800 dark:text-neutral-300">
-                    Cancel
-                  </Text>
-                </Pressable>
-                <Pressable className="px-4 py-2 rounded-md  bg-primary-500 dark:bg-primary-500">
-                  <Text className="text-white">Save</Text>
-                </Pressable>
-              </View>
-            </Pressable>
-          </Pressable>
-        </Modal>
-
-        {taskTab === "completed" ? null : (
-          // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={80}
-            //       style={{ flex: 1 }}
-          >
-            {/* Quick add task */}
-            <View className="-mt-2 px-3 flex-row items-center gap-4">
-              <Checkbox
-                className="size-5 rounded-full"
-                color={"#3b82f6"}
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9999,
-                }}
-                disabled={true}
-              />
+            <View className="relative min-h-[50]">
               <TextInput
-                className="px-2 h-[32] text-sm flex-1 text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
-                placeholder="Quick Add Task"
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  textAlignVertical: "center",
-                }}
-                value={quickAddText}
-                onChangeText={setQuickAddText}
-                returnKeyType="done"
-                onSubmitEditing={() => {
-                  if (!quickAddText.trim()) return;
-
-                  quickAddTask(quickAddText);
-                  setQuickAddText("");
-                }}
+                className="absolute inset-0 border border-neutral-400 px-4 flex-1 rounded-md font-mono text-neutral-800 dark:text-neutral-300"
+                placeholder="Esimate"
+                value={editingTask?.estimated_minutes?.toString()}
               />
+              <Text className="absolute right-4 bottom-1 text-neutral-400 font-medium">
+                mins
+              </Text>
             </View>
-          </KeyboardAvoidingView>
-          // </TouchableWithoutFeedback>
-        )}
-      </View>
-    );
-  }
+
+            <QuickEstimateOptions
+              estimatedSeconds={editingTask?.estimated_seconds}
+              onEstimateChange={(estimatedSeconds) => {
+                setEditingTask((prevTask) => ({
+                  ...prevTask,
+                  estimated_seconds: estimatedSeconds,
+                  estimated_minutes: Math.floor(estimatedSeconds / 60),
+                }));
+              }}
+            />
+
+            <View className="flex-row mt-3 gap-2">
+              <Pressable
+                className="px-4 py-2 rounded-md  bg-neutral-100 dark:bg-neutral-700"
+                onPress={() => setEditingTask(null)}
+              >
+                <Text className="text-neutral-800 dark:text-neutral-300">
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable className="px-4 py-2 rounded-md  bg-primary-500 dark:bg-primary-500">
+                <Text className="text-white">Save</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {taskTab === "completed" ? null : (
+        // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={80}
+          //       style={{ flex: 1 }}
+        >
+          {/* Quick add task */}
+          <View className="-mt-2 px-3 flex-row items-center gap-4">
+            <Checkbox
+              className="size-5 rounded-full"
+              color={"#3b82f6"}
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: 9999,
+              }}
+              disabled={true}
+            />
+            <TextInput
+              className="px-2 h-[32] text-sm flex-1 text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+              placeholder="Quick Add Task"
+              style={{
+                margin: 0,
+                padding: 0,
+                textAlignVertical: "center",
+              }}
+              value={quickAddText}
+              onChangeText={setQuickAddText}
+              returnKeyType="done"
+              onSubmitEditing={() => {
+                if (!quickAddText.trim()) return;
+
+                quickAddTask(quickAddText);
+                setQuickAddText("");
+              }}
+            />
+          </View>
+        </KeyboardAvoidingView>
+        // </TouchableWithoutFeedback>
+      )}
+    </View>
+  );
 
   // return (
   //   <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

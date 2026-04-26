@@ -9,6 +9,7 @@ import Toast from "react-native-toast-message";
 // import { useColorScheme } from "@/components/useColorScheme";
 import ScreenHeader from "@/components/ScreenHeader";
 import { toastConfig } from "@/config/toast";
+import { TimerProvider } from "@/contexts/timer";
 import { getDb, initDb } from "@/db";
 import { ThemeProvider, useTheme } from "@/providers/ThemeProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,7 +18,7 @@ import "../global.css";
 
 export {
   // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+  ErrorBoundary
 } from "expo-router";
 
 export const unstable_settings = {
@@ -58,7 +59,7 @@ export default function RootLayout() {
 
     const db = getDb();
     const userVersion = db.getFirstSync<{ user_version: number }>(
-      "PRAGMA user_version;"
+      "PRAGMA user_version;",
     );
     console.log("DB version: ", userVersion);
   }, []);
@@ -69,7 +70,13 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TimerProvider>
+        <RootLayoutNav />
+      </TimerProvider>
+    </QueryClientProvider>
+  );
 }
 
 const queryClient = new QueryClient({
@@ -87,9 +94,8 @@ function RootLayoutNav() {
   return (
     <ThemeProvider /* value={colorScheme === "dark" ? DarkTheme : DefaultTheme} */
     >
-      <QueryClientProvider client={queryClient}>
-        <Stack
-        /*  screenOptions={{
+      <Stack
+      /*  screenOptions={{
           headerStyle: {
             backgroundColor:
               resolvedTheme === "dark"
@@ -101,58 +107,57 @@ function RootLayoutNav() {
               ? colors.neutral[300]
               : colors.neutral[800],
         }} */
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen
-            name="add-project"
-            options={{
-              title: "Add Project",
-              // headerTitleStyle: {
-              //   fontSize: 22,
-              // },
-              // header: () => (
-              //   <View
-              //     style={{
-              //       paddingTop: 50,
-              //       height: 120,
-              //       justifyContent: "center",
-              //     }}
-              //   >
-              //     <Text style={{ fontSize: 22 }}>Add Project</Text>
-              //   </View>
-              // ),
-              // header: () => (
-              //   <View className="mt-8 bg-neutral-100 dark:bg-neutral-800 px-6 py-3 flex-row gap-6 items-center justify-start">
-              //     <Ionicons
-              //       name="arrow-back"
-              //       size={24}
-              //       color={
-              //         resolvedTheme === "light"
-              //           ? colors.neutral[800]
-              //           : colors.neutral[50]
-              //       }
-              //     />
-              //     <Text className="text-xl text-neutral-800 dark:text-neutral-50">
-              //       Add Project
-              //     </Text>
-              //   </View>
-              // ),
-              header: () => <ScreenHeader title="Add Project" />,
-              presentation: "modal",
-            }}
-          />
-          <Stack.Screen
-            name="add-task"
-            options={{
-              title: "Add Task",
-              header: () => <ScreenHeader title="Add Task" />,
-              presentation: "modal",
-            }}
-          />
-        </Stack>
-        <Toast config={toastConfig} />
-      </QueryClientProvider>
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen
+          name="add-project"
+          options={{
+            title: "Add Project",
+            // headerTitleStyle: {
+            //   fontSize: 22,
+            // },
+            // header: () => (
+            //   <View
+            //     style={{
+            //       paddingTop: 50,
+            //       height: 120,
+            //       justifyContent: "center",
+            //     }}
+            //   >
+            //     <Text style={{ fontSize: 22 }}>Add Project</Text>
+            //   </View>
+            // ),
+            // header: () => (
+            //   <View className="mt-8 bg-neutral-100 dark:bg-neutral-800 px-6 py-3 flex-row gap-6 items-center justify-start">
+            //     <Ionicons
+            //       name="arrow-back"
+            //       size={24}
+            //       color={
+            //         resolvedTheme === "light"
+            //           ? colors.neutral[800]
+            //           : colors.neutral[50]
+            //       }
+            //     />
+            //     <Text className="text-xl text-neutral-800 dark:text-neutral-50">
+            //       Add Project
+            //     </Text>
+            //   </View>
+            // ),
+            header: () => <ScreenHeader title="Add Project" />,
+            presentation: "modal",
+          }}
+        />
+        <Stack.Screen
+          name="add-task"
+          options={{
+            title: "Add Task",
+            header: () => <ScreenHeader title="Add Task" />,
+            presentation: "modal",
+          }}
+        />
+      </Stack>
+      <Toast config={toastConfig} />
     </ThemeProvider>
   );
 }
