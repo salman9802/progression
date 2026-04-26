@@ -36,3 +36,9 @@ export type TTask = {
   created_at: number;
   updated_at: number;
 };
+
+export type TTaskDetails = TTask & {
+  // convenience — computed from the above
+  estimated_minutes: number;
+  elapsed_minutes: number;
+};

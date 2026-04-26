@@ -1,21 +1,23 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 // import CheckBox from "@react-native-community/checkbox";
-import { TTask } from "@/db/schema";
+import { TTaskDetails } from "@/db/schema";
 import { useMarkTaskCompleted } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
 import Checkbox from "expo-checkbox";
 import Toast from "react-native-toast-message";
 
 type TaskItemProps = {
-  task: TTask;
+  task: TTaskDetails;
+  onEdit: () => any;
 };
 
-const TaskItem = ({ task }: TaskItemProps) => {
+const TaskListItem = ({ task, onEdit }: TaskItemProps) => {
   const logger = React.useMemo(() => new Logger("TaskItem"), []);
 
   // const [completed, setCompleted] = React.useState(task.completed);
+  // const [isQuickEditOpen, setIsQuickEditOpen] = React.useState(false);
 
   const markTaskCompletedMutation = useMarkTaskCompleted();
 
@@ -79,15 +81,27 @@ const TaskItem = ({ task }: TaskItemProps) => {
       </View>
 
       {/* Right Side */}
-      <View className="flex-1 pb-[20]">
+      <View className="flex-1 flex-row items-start justify-between pb-[20] px-4">
         <Text
-          className={`text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
+          className={`flex-1 text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
         >
           {task.name}
         </Text>
+
+        <Pressable onPress={() => onEdit()}>
+          <Text
+            className={`font-mono text-sm text-neutral-600 dark:text-neutral-400 ${task.completed === 1 && "line-through"}`}
+          >
+            {task.elapsed_minutes}m
+            <Text className="text-xs">({task.elapsed_seconds}s)</Text>
+            {" / "}
+            {task.estimated_minutes}m
+            <Text className="text-xs">({task.estimated_seconds}s)</Text>
+          </Text>
+        </Pressable>
       </View>
     </View>
   );
 };
 
-export default TaskItem;
+export default TaskListItem;

@@ -3,9 +3,11 @@ import * as Crypto from "expo-crypto";
 import appColors from "@/colors";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
+import QuickEstimateOptions from "@/components/task/QuickEstimateOptions";
 import TaskFilter, { TaskTab } from "@/components/task/TaskFilter";
-import TaskItem from "@/components/task/TaskItem";
+import TaskListItem from "@/components/task/TaskListItem";
 import { getDb } from "@/db";
+import { TTaskDetails } from "@/db/schema";
 import { projectKeys, useProjectDetails, useProjects } from "@/hooks/projects";
 import { tasksKeys, useTasksByProjectId } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
@@ -17,15 +19,14 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
@@ -53,6 +54,9 @@ export default function ProjectsScreen() {
 
   // tasks
   const [quickAddText, setQuickAddText] = useState("");
+  const [editingTask, setEditingTask] = useState<Partial<TTaskDetails> | null>(
+    null,
+  );
 
   const tasksQuery = useTasksByProjectId(currentProjectId);
 
@@ -116,7 +120,9 @@ export default function ProjectsScreen() {
         <FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TaskItem task={item} />}
+          renderItem={({ item }) => (
+            <TaskListItem task={item} onEdit={() => setEditingTask(item)} />
+          )}
           contentContainerStyle={{
             paddingBottom: 18, // space for input
           }}
@@ -396,46 +402,104 @@ export default function ProjectsScreen() {
           keyboardShouldPersistTaps="handled"
         />
 
-        {taskTab === "completed" ? null : (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              keyboardVerticalOffset={80}
-              //       style={{ flex: 1 }}
+        {/* Quick Edit Estimate Time */}
+        <Modal
+          visible={editingTask !== null}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setEditingTask(null)}
+        >
+          <Pressable
+            className="flex-1 bg-black/40 justify-center items-center"
+            onPress={() => setEditingTask(null)} // Close modal on overlay tap
+          >
+            <Pressable
+              className="w-[90%] bg-white dark:bg-neutral-800 rounded-xl p-4"
+              onPress={(e) => e.stopPropagation()} // prevent modal closure on taps other than overlay
             >
-              {/* Quick add task */}
-              <View className="-mt-2 px-3 flex-row items-center gap-4">
-                <Checkbox
-                  className="size-5 rounded-full"
-                  color={"#3b82f6"}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9999,
-                  }}
-                  disabled={true}
-                />
-                <TextInput
-                  className="px-2 h-[32] text-sm flex-1 text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
-                  placeholder="Quick Add Task"
-                  style={{
-                    margin: 0,
-                    padding: 0,
-                    textAlignVertical: "center",
-                  }}
-                  value={quickAddText}
-                  onChangeText={setQuickAddText}
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    if (!quickAddText.trim()) return;
+              <Text className="text-lg font-semibold mb-4 text-neutral-800 dark:text-neutral-200">
+                Edit Estimate
+              </Text>
 
-                    quickAddTask(quickAddText);
-                    setQuickAddText("");
-                  }}
+              <View className="relative min-h-[50]">
+                <TextInput
+                  className="absolute inset-0 border border-neutral-400 px-4 flex-1 rounded-md font-mono text-neutral-800 dark:text-neutral-300"
+                  placeholder="Esimate"
+                  value={editingTask?.estimated_minutes?.toString()}
                 />
+                <Text className="absolute right-4 bottom-1 text-neutral-400 font-medium">
+                  mins
+                </Text>
               </View>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
+
+              <QuickEstimateOptions
+                estimatedSeconds={editingTask?.estimated_seconds}
+                onEstimateChange={(estimatedSeconds) => {
+                  setEditingTask((prevTask) => ({
+                    ...prevTask,
+                    estimated_seconds: estimatedSeconds,
+                    estimated_minutes: Math.floor(estimatedSeconds / 60),
+                  }));
+                }}
+              />
+
+              <View className="flex-row mt-3 gap-2">
+                <Pressable
+                  className="px-4 py-2 rounded-md  bg-neutral-100 dark:bg-neutral-700"
+                  onPress={() => setEditingTask(null)}
+                >
+                  <Text className="text-neutral-800 dark:text-neutral-300">
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable className="px-4 py-2 rounded-md  bg-primary-500 dark:bg-primary-500">
+                  <Text className="text-white">Save</Text>
+                </Pressable>
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        {taskTab === "completed" ? null : (
+          // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={80}
+            //       style={{ flex: 1 }}
+          >
+            {/* Quick add task */}
+            <View className="-mt-2 px-3 flex-row items-center gap-4">
+              <Checkbox
+                className="size-5 rounded-full"
+                color={"#3b82f6"}
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9999,
+                }}
+                disabled={true}
+              />
+              <TextInput
+                className="px-2 h-[32] text-sm flex-1 text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                placeholder="Quick Add Task"
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  textAlignVertical: "center",
+                }}
+                value={quickAddText}
+                onChangeText={setQuickAddText}
+                returnKeyType="done"
+                onSubmitEditing={() => {
+                  if (!quickAddText.trim()) return;
+
+                  quickAddTask(quickAddText);
+                  setQuickAddText("");
+                }}
+              />
+            </View>
+          </KeyboardAvoidingView>
+          // </TouchableWithoutFeedback>
         )}
       </View>
     );

@@ -1,13 +1,13 @@
-import { TTask } from "@/db/schema";
+import { TTaskDetails } from "@/db/schema";
 import React from "react";
 import { Text, View } from "react-native";
-import TaskItem from "./TaskItem";
+import TaskListItem from "./TaskListItem";
 
 // const dummyTasks = ["lorem", "ipsum", "dot", "eliot"];
 // const dummyTasks = [];
 
 type TaskListProps = {
-  tasks: TTask[];
+  tasks: TTaskDetails[];
 };
 
 const TaskList = ({ tasks }: TaskListProps) => {
@@ -20,7 +20,7 @@ const TaskList = ({ tasks }: TaskListProps) => {
       ) : (
         <Text className="gap-4">
           {tasks.map((task, i) => (
-            <TaskItem key={i} task={task} />
+            <TaskListItem key={i} task={task} onEdit={() => {}} />
           ))}
         </Text>
       )}
