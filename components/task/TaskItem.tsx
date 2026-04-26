@@ -15,39 +15,9 @@ type TaskItemProps = {
 const TaskItem = ({ task }: TaskItemProps) => {
   const logger = React.useMemo(() => new Logger("TaskItem"), []);
 
-  const [completed, setCompleted] = React.useState(task.completed);
+  // const [completed, setCompleted] = React.useState(task.completed);
 
   const markTaskCompletedMutation = useMarkTaskCompleted();
-
-  React.useEffect(() => {
-    markTaskCompletedMutation.mutate(
-      {
-        id: task.id,
-        completed: completed ? 1 : 0,
-      },
-      {
-        onSuccess: () => {
-          Toast.show({
-            type: "success",
-            text1: "Task updated",
-          });
-        },
-        onError: (error) => {
-          Toast.show({
-            type: "error",
-            text1: "Failed to update task",
-            text2: JSON.stringify(error.stack),
-          });
-          logger.log({
-            name: error.name,
-            message: error.message,
-            cause: error.cause,
-            stack: error.stack,
-          });
-        },
-      },
-    );
-  }, [completed]);
 
   return (
     <View className="flex-row items-start min-h-[80]">
@@ -72,16 +42,47 @@ const TaskItem = ({ task }: TaskItemProps) => {
             // padding: 8,
           }}
           color={"#3b82f6"}
-          value={completed === 1}
+          value={task.completed === 1}
+          // onValueChange={(value) => {
+          //   setCompleted(value ? 1 : 0);
+          // }}
           onValueChange={(value) => {
-            setCompleted(value ? 1 : 0);
+            markTaskCompletedMutation.mutate(
+              {
+                id: task.id,
+                completed: value ? 1 : 0,
+              },
+              {
+                onSuccess: () => {
+                  Toast.show({
+                    type: "success",
+                    text1: "Task updated",
+                  });
+                },
+                onError: (error) => {
+                  Toast.show({
+                    type: "error",
+                    text1: "Failed to update task",
+                    text2: JSON.stringify(error.stack),
+                  });
+                  logger.log({
+                    name: error.name,
+                    message: error.message,
+                    cause: error.cause,
+                    stack: error.stack,
+                  });
+                },
+              },
+            );
           }}
         />
       </View>
 
       {/* Right Side */}
       <View className="flex-1 pb-[20]">
-        <Text className="text-neutral-700 dark:text-neutral-200">
+        <Text
+          className={`text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
+        >
           {task.name}
         </Text>
       </View>

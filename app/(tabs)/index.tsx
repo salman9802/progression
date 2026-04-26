@@ -56,6 +56,7 @@ export default function ProjectsScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={80}
         style={{ flex: 1 }}
       >
         <ScrollView
@@ -258,14 +259,20 @@ export default function ProjectsScreen() {
                 Tasks
               </Text>
 
-              <TaskFilter onChange={(filter) => setTaskTab(filter)} />
+              <TaskFilter onChange={(tab) => setTaskTab(tab)} />
 
               <QueryState query={tasksQuery}>
-                {(tasks) => <TaskList tasks={tasks} />}
+                {(tasks) =>
+                  taskTab === "pending" ? (
+                    <TaskList tasks={tasks.filter((t) => !t.completed)} />
+                  ) : (
+                    <TaskList tasks={tasks.filter((t) => t.completed)} />
+                  )
+                }
               </QueryState>
 
               {/* Quick add task */}
-              <View className="px-4 flex-row items-start min-h-[80] gap-4">
+              <View className="-mt-2 px-4 flex-row items-center gap-4">
                 <Checkbox
                   className="size-5 rounded-full"
                   color={"#3b82f6"}
@@ -276,8 +283,15 @@ export default function ProjectsScreen() {
                   }}
                   disabled={true}
                 />
-                {/* FIXME: fix input size. must match checkbox */}
-                <TextInput className="h-[32] text-sm flex-1 border border-neutral-300" />
+                <TextInput
+                  className="px-2 h-[32] text-sm flex-1"
+                  placeholder="Quick add"
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    textAlignVertical: "center",
+                  }}
+                />
               </View>
             </View>
 

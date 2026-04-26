@@ -4,7 +4,7 @@ import { projectKeys } from "./projects";
 
 // Query keys in one place — avoids typo bugs across files
 export const tasksKeys = {
-  byProjectId: (projectId: string) => ["tasks/project", projectId] as const,
+  byProjectId: (projectId?: string) => ["tasks/project", projectId] as const,
   markTaskCompleted: ["tasks/mark-completed"] as const,
 
   detail: (id: string) => ["projects", id] as const,
@@ -25,8 +25,10 @@ export function useMarkTaskCompleted() {
     mutationKey: tasksKeys.markTaskCompleted,
     mutationFn: markTaskCompleted,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [projectKeys.details()[0]],
+      [projectKeys.details()[0], tasksKeys.byProjectId()[0]].map((key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key],
+        });
       });
     },
   });
