@@ -17,11 +17,15 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
@@ -114,7 +118,7 @@ export default function ProjectsScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <TaskItem task={item} />}
           contentContainerStyle={{
-            paddingBottom: 100, // 👈 space for input
+            paddingBottom: 18, // space for input
           }}
           ListHeaderComponent={
             <>
@@ -348,44 +352,91 @@ export default function ProjectsScreen() {
               </View>
             </>
           }
-          ListFooterComponent={
-            taskTab === "completed" ? null : (
-              <>
-                {/* Quick add task */}
-                <View className="-mt-2 px-3 flex-row items-center gap-4">
-                  <Checkbox
-                    className="size-5 rounded-full"
-                    color={"#3b82f6"}
-                    style={{
-                      width: 18,
-                      height: 18,
-                      borderRadius: 9999,
-                    }}
-                    disabled={true}
-                  />
-                  <TextInput
-                    className="px-2 h-[32] text-sm flex-1"
-                    placeholder="Quick Add Task"
-                    style={{
-                      margin: 0,
-                      padding: 0,
-                      textAlignVertical: "center",
-                    }}
-                    value={quickAddText}
-                    onChangeText={setQuickAddText}
-                    returnKeyType="done"
-                    onSubmitEditing={() => {
-                      if (!quickAddText.trim()) return;
+          // ListFooterComponent={
+          //   taskTab === "completed" ? null : (
+          //     <KeyboardAvoidingView
+          //       behavior={Platform.OS === "ios" ? "padding" : "height"}
+          //       keyboardVerticalOffset={80}
+          //       //       style={{ flex: 1 }}
+          //     >
+          //       {/* Quick add task */}
+          //       <View className="-mt-2 px-3 flex-row items-center gap-4">
+          //         <Checkbox
+          //           className="size-5 rounded-full"
+          //           color={"#3b82f6"}
+          //           style={{
+          //             width: 18,
+          //             height: 18,
+          //             borderRadius: 9999,
+          //           }}
+          //           disabled={true}
+          //         />
+          //         <TextInput
+          //           className="px-2 h-[32] text-sm flex-1"
+          //           placeholder="Quick Add Task"
+          //           style={{
+          //             margin: 0,
+          //             padding: 0,
+          //             textAlignVertical: "center",
+          //           }}
+          //           value={quickAddText}
+          //           onChangeText={setQuickAddText}
+          //           returnKeyType="done"
+          //           onSubmitEditing={() => {
+          //             if (!quickAddText.trim()) return;
 
-                      quickAddTask(quickAddText);
-                      setQuickAddText("");
-                    }}
-                  />
-                </View>
-              </>
-            )
-          }
+          //             quickAddTask(quickAddText);
+          //             setQuickAddText("");
+          //           }}
+          //         />
+          //       </View>
+          //     </KeyboardAvoidingView>
+          //   )
+          // }
+          keyboardShouldPersistTaps="handled"
         />
+
+        {taskTab === "completed" ? null : (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              keyboardVerticalOffset={80}
+              //       style={{ flex: 1 }}
+            >
+              {/* Quick add task */}
+              <View className="-mt-2 px-3 flex-row items-center gap-4">
+                <Checkbox
+                  className="size-5 rounded-full"
+                  color={"#3b82f6"}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 9999,
+                  }}
+                  disabled={true}
+                />
+                <TextInput
+                  className="px-2 h-[32] text-sm flex-1 text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+                  placeholder="Quick Add Task"
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    textAlignVertical: "center",
+                  }}
+                  value={quickAddText}
+                  onChangeText={setQuickAddText}
+                  returnKeyType="done"
+                  onSubmitEditing={() => {
+                    if (!quickAddText.trim()) return;
+
+                    quickAddTask(quickAddText);
+                    setQuickAddText("");
+                  }}
+                />
+              </View>
+            </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+        )}
       </View>
     );
   }
