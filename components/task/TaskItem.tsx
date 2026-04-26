@@ -20,7 +20,7 @@ const TaskItem = ({ task }: TaskItemProps) => {
   const markTaskCompletedMutation = useMarkTaskCompleted();
 
   return (
-    <View className="flex-row items-start min-h-[80]">
+    <View className="flex-row items-start min-h-[50]">
       {/* Left Side (line + circle) */}
       <View className="relative w-[40] items-center mt-[4]">
         {/* Top Line */}
