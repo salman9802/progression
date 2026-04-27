@@ -12,7 +12,12 @@ import { toastConfig } from "@/config/toast";
 import { TimerProvider } from "@/contexts/timer";
 import { getDb, initDb } from "@/db";
 import { ThemeProvider, useTheme } from "@/providers/ThemeProvider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { Text } from "react-native";
 import "../global.css";
 
@@ -86,6 +91,26 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 30, // data is "fresh" for 30s, won't refetch unnecessarily
     },
   },
+  queryCache: new QueryCache({
+    // Default global error logging
+    onError: (error) => {
+      console.error("-------------------------");
+      console.error("Default query error handler");
+      console.error("Error:", error.message);
+      console.error(error.stack);
+      console.error("-------------------------");
+    },
+  }),
+  mutationCache: new MutationCache({
+    // Default global error logging
+    onError: (error) => {
+      console.error("-------------------------");
+      console.error("Default mutation error handler");
+      console.error("Error:", error.message);
+      console.error(error.stack);
+      console.error("-------------------------");
+    },
+  }),
 });
 
 function RootLayoutNav() {
