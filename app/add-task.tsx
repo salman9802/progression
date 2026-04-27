@@ -1,6 +1,7 @@
 import * as Crypto from "expo-crypto";
 
 import CTextInput from "@/components/CTextInput";
+import QuickEstimateOptions from "@/components/task/TaskEstimateOptions";
 import { getDb } from "@/db";
 import { TProjectDetails, TTask } from "@/db/schema";
 import { router, useLocalSearchParams } from "expo-router";
@@ -45,7 +46,7 @@ const AddTaskScreen = () => {
           0,
           now,
           now,
-        ]
+        ],
       );
       // console.log("Project added");
       Toast.show({
@@ -119,6 +120,7 @@ const AddTaskScreen = () => {
         render={({ field }) => (
           <CTextInput
             // className="w-full px-6 py-3 rounded-md bg-neutral-50 dark:bg-neutral-800"
+            className="font-mono"
             inputMode="numeric"
             style={{ textAlignVertical: "top" }}
             placeholder="Estimation (mins)"
@@ -137,7 +139,7 @@ const AddTaskScreen = () => {
         </Text>
       )}
 
-      <View className="flex-row items-center justify-between w-full ">
+      {/* <View className="flex-row items-center justify-between w-full ">
         <TouchableOpacity
           onPress={() => {
             const estimatedSeconds = getValues("estimated_seconds");
@@ -198,6 +200,15 @@ const AddTaskScreen = () => {
             +10 mins
           </Text>
         </TouchableOpacity>
+      </View> */}
+
+      <View className="bg-neutral-50 p-2 rounded-md">
+        <QuickEstimateOptions
+          estimatedSeconds={getValues("estimated_seconds")}
+          onEstimateChange={(estimatedSeconds) => {
+            setValue("estimated_seconds", estimatedSeconds);
+          }}
+        />
       </View>
 
       <TouchableOpacity

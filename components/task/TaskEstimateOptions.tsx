@@ -6,24 +6,13 @@ type QuickEstimateOptionsProps = {
   onEstimateChange: (esimatedSeconds: number) => any;
 };
 
-const QuickEstimateOptions = ({
+const TaskEstimateOptions = ({
   estimatedSeconds,
   onEstimateChange,
 }: QuickEstimateOptionsProps) => {
   return (
-    <View>
-      <View className="flex-row gap-2">
-        {/* -10 mins */}
-        <TouchableOpacity
-          onPress={() => {
-            if (estimatedSeconds == undefined) onEstimateChange(-600);
-            else onEstimateChange(estimatedSeconds - 600);
-          }}
-          className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md"
-        >
-          <Text className="text-red-500 font-medium font-mono">-10 mins</Text>
-        </TouchableOpacity>
-
+    <View className="w-full">
+      <View className="flex-row gap-2 w-full">
         {/* -5 mins */}
         <TouchableOpacity
           onPress={() => {
@@ -34,22 +23,20 @@ const QuickEstimateOptions = ({
         >
           <Text className="text-red-500 font-medium font-mono">-5 mins</Text>
         </TouchableOpacity>
-      </View>
 
-      <View className="flex-row gap-2">
-        {/* +10 mins */}
+        {/* -10 mins */}
         <TouchableOpacity
           onPress={() => {
-            if (estimatedSeconds == undefined) onEstimateChange(+600);
-            else onEstimateChange(estimatedSeconds + 600);
+            if (estimatedSeconds == undefined) onEstimateChange(-600);
+            else onEstimateChange(estimatedSeconds - 600);
           }}
           className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md"
         >
-          <Text className="text-primary-500 font-medium font-mono">
-            +10 mins
-          </Text>
+          <Text className="text-red-500 font-medium font-mono">-10 mins</Text>
         </TouchableOpacity>
+      </View>
 
+      <View className="flex-row gap-2">
         {/* -5 mins */}
         <TouchableOpacity
           onPress={() => {
@@ -62,9 +49,22 @@ const QuickEstimateOptions = ({
             +5 mins
           </Text>
         </TouchableOpacity>
+
+        {/* +10 mins */}
+        <TouchableOpacity
+          onPress={() => {
+            if (estimatedSeconds == undefined) onEstimateChange(+600);
+            else onEstimateChange(estimatedSeconds + 600);
+          }}
+          className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md"
+        >
+          <Text className="text-primary-500 font-medium font-mono">
+            +10 mins
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default QuickEstimateOptions;
+export default TaskEstimateOptions;

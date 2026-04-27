@@ -3,7 +3,7 @@ import * as Crypto from "expo-crypto";
 import appColors from "@/colors";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
-import QuickEstimateOptions from "@/components/task/QuickEstimateOptions";
+import QuickEstimateOptions from "@/components/task/TaskEstimateOptions";
 import TaskFilter, { TaskTab } from "@/components/task/TaskFilter";
 import TaskListItem from "@/components/task/TaskListItem";
 import { getDb } from "@/db";
