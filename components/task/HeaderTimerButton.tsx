@@ -46,7 +46,7 @@ const HeaderTimerButton = () => {
   return (
     <Pressable
       disabled={activeTask == null}
-      className={`relative overflow-visible mr-4 p-3 bg-primary-500 rounded-full flex items-center justify-center disabled:opacity-50`}
+      className={`relative overflow-visible p-3 bg-primary-500 rounded-full flex items-center justify-center disabled:opacity-50`}
       onPress={() => stopTimer()}
     >
       {/* <Animated.View

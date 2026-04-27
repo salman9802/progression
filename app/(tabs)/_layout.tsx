@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import tailwindColors from "tailwindcss/colors";
 
 import colors from "@/colors";
-import HeaderTimerButton from "@/components/task/HeaderTimerButton";
+import HeaderRight from "@/components/header/HeaderRight";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useColorScheme } from "@/components/useColorScheme";
 import Logger from "@/lib/logger";
@@ -46,7 +46,8 @@ export default function TabLayout() {
         //     </Pressable>
         //   );
         // },
-        headerRight: () => <HeaderTimerButton />,
+        // headerRight: () => <HeaderTimerButton />,
+        headerRight: () => <HeaderRight />,
 
         tabBarStyle: {
           backgroundColor:

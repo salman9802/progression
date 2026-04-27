@@ -60,7 +60,8 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // elapsed seconds
-  const elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
+  let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
+  elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
 
   const value = {
     activeTask,
