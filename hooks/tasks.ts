@@ -3,6 +3,7 @@ import {
   markTaskCompleted,
   startTimer,
   stopTimer,
+  updateTask,
 } from "@/db/queries/tasks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "./projects";
@@ -11,6 +12,7 @@ import { projectKeys } from "./projects";
 export const tasksKeys = {
   byProjectId: (projectId?: string) => ["tasks/project", projectId] as const,
   markTaskCompleted: ["tasks/mark-completed"] as const,
+  updateTask: ["tasks/update"] as const,
   startTimer: ["tasks/start-timer"] as const,
   stopTimer: ["tasks/stop-timer"] as const,
 
@@ -31,6 +33,21 @@ export function useMarkTaskCompleted() {
   return useMutation({
     mutationKey: tasksKeys.markTaskCompleted,
     mutationFn: markTaskCompleted,
+    onSuccess: () => {
+      [projectKeys.details()[0], tasksKeys.byProjectId()[0]].map((key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key],
+        });
+      });
+    },
+  });
+}
+
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: tasksKeys.updateTask,
+    mutationFn: updateTask,
     onSuccess: () => {
       [projectKeys.details()[0], tasksKeys.byProjectId()[0]].map((key) => {
         queryClient.invalidateQueries({

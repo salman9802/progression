@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "progression",
+    "name": "Progression",
     "slug": "progression",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "progression",
@@ -22,7 +22,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.notexists.progression"
     },
     "web": {
       "bundler": "metro",

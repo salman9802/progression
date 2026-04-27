@@ -9,7 +9,7 @@ import TaskListItem from "@/components/task/TaskListItem";
 import { getDb } from "@/db";
 import { TTaskDetails } from "@/db/schema";
 import { projectKeys, useProjectDetails, useProjects } from "@/hooks/projects";
-import { tasksKeys, useTasksByProjectId } from "@/hooks/tasks";
+import { tasksKeys, useTasksByProjectId, useUpdateTask } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
@@ -111,8 +111,39 @@ export default function ProjectsScreen() {
     }
   };
 
+  const updateTaskMutation = useUpdateTask();
+  const handleTaskQuickEditEstimate = () => {
+    logger.log("handleTaskQuickEstimate invoked");
+    if (editingTask == null) return;
+
+    updateTaskMutation.mutate(
+      {
+        id: editingTask.id!,
+        payload: {
+          estimated_seconds: editingTask.estimated_seconds,
+          // estimated_minutes: editingTask.estimated_seconds
+          //   ? Math.floor(editingTask.estimated_seconds / 60)
+          //   : 0,
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditingTask(null);
+          Toast.show({
+            type: "success",
+            text1: "Estimate updated",
+          });
+        },
+        onError: (error) => {
+          console.error(error);
+        },
+      },
+    );
+  };
+
   // logger.log(projectsQuery.data);
   // logger.log(projectDetailsQuery.data);
+  // logger.log({ editingTask });
 
   return (
     <View style={{ flex: 1 }} className="bg-neutral-100 dark:bg-neutral-900">
@@ -451,7 +482,10 @@ export default function ProjectsScreen() {
                   Cancel
                 </Text>
               </Pressable>
-              <Pressable className="px-4 py-2 rounded-md  bg-primary-500 dark:bg-primary-500">
+              <Pressable
+                className="px-4 py-2 rounded-md  bg-primary-500 dark:bg-primary-500"
+                onPress={() => handleTaskQuickEditEstimate()}
+              >
                 <Text className="text-white">Save</Text>
               </Pressable>
             </View>

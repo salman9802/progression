@@ -35,6 +35,24 @@ export async function markTaskCompleted({
   );
 }
 
+export async function updateTask({
+  id,
+  payload,
+}: {
+  id: string;
+  payload: Partial<TTask>;
+}) {
+  const values = Object.entries(payload);
+  if (values.length === 0) return;
+
+  const updateStmt = values
+    .map((value) => `${value[0]} = '${value[1]}'`)
+    .join(",");
+  // const data = values.map((value) => value[1]);
+
+  getDb().execSync(`UPDATE tasks SET ${updateStmt} WHERE id = '${id}'`);
+}
+
 export async function startTimer(id: string) {
   getDb().execSync(
     `UPDATE tasks SET timer_started_at = CURRENT_UNIX_TIMESTAMP WHERE id = '${id}'`,
