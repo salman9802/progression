@@ -167,11 +167,12 @@ export default function ProjectsScreen() {
       estimateMultiple = i;
     }
   }
-  const estimateProgressPercentage = projectDetailsQuery.data
-    ? (projectDetailsQuery.data.total_elapsed_seconds /
-        projectDetailsQuery.data.total_estimated_seconds) *
-      100
-    : 0;
+  const estimateProgressPercentage =
+    projectDetailsQuery.data && tasksQuery.data && tasksQuery.data.length !== 0
+      ? (projectDetailsQuery.data.total_elapsed_seconds /
+          projectDetailsQuery.data.total_estimated_seconds) *
+        100
+      : 0;
   // const estimateProgressLabel = hasExceededEstimate
   //   ? `Estimate Exceeded (${(<Text className="font-mono">Math.round(estimateProgressPercentage)</Text>)}%)`
   //   : `Within Estimate (${(<Text className="font-mono">Math.round(estimateProgressPercentage)</Text>)}%)`;
@@ -182,7 +183,7 @@ export default function ProjectsScreen() {
         className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
       >
         <View
-          className={`h-full rounded-[inherit] ${hasExceededEstimate ? "bg-red-500" : "bg-green-500"}`}
+          className={`h-full rounded-[inherit] ${hasExceededEstimate ? "bg-red-500" : estimateProgressPercentage < 75 ? "bg-green-500" : "bg-orange-500"}`}
           style={{
             width: `${estimateProgressPercentage}%`,
           }}
@@ -204,18 +205,33 @@ export default function ProjectsScreen() {
           )
         </Text>
       );
-    else
-      return (
-        <Text className="px-4 py-2 rounded-md text-green-500 bg-green-500/10">
-          Within Estimate (
-          {
-            <Text className="font-mono text-sm">
-              {Math.round(estimateProgressPercentage)}%
-            </Text>
-          }
-          )
-        </Text>
-      );
+    else {
+      if (estimateProgressPercentage < 75) {
+        return (
+          <Text className="px-4 py-2 rounded-md text-green-500 bg-green-500/10">
+            Within Estimate (
+            {
+              <Text className="font-mono text-sm">
+                {Math.round(estimateProgressPercentage)}%
+              </Text>
+            }
+            )
+          </Text>
+        );
+      } else {
+        return (
+          <Text className="px-4 py-2 rounded-md text-orange-500 bg-orange-500/10">
+            Within Estimate (
+            {
+              <Text className="font-mono text-sm">
+                {Math.round(estimateProgressPercentage)}%
+              </Text>
+            }
+            )
+          </Text>
+        );
+      }
+    }
   };
 
   // logger.log({ estimateProgressPercentage, hasExceededEstimate });

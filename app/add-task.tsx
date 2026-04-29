@@ -55,7 +55,7 @@ const AddTaskScreen = () => {
       );
       // console.log("Project added");
       queryClient.invalidateQueries({
-        queryKey: tasksKeys.byProjectId(),
+        queryKey: tasksKeys.byProjectId(parsedProject?.id),
       });
       Toast.show({
         type: "success",
