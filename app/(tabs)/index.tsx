@@ -113,7 +113,6 @@ export default function ProjectsScreen() {
 
   const updateTaskMutation = useUpdateTask();
   const handleTaskQuickEditEstimate = () => {
-    logger.log("handleTaskQuickEstimate invoked");
     if (editingTask == null) return;
 
     updateTaskMutation.mutate(
@@ -141,8 +140,90 @@ export default function ProjectsScreen() {
     );
   };
 
-  // logger.log(projectsQuery.data);
-  // logger.log(projectDetailsQuery.data);
+  // ------------------------- Estimate Progress bar -------------------------
+  const hasExceededEstimate = projectDetailsQuery.data
+    ? projectDetailsQuery.data.total_estimated_seconds <
+      projectDetailsQuery.data.total_elapsed_seconds
+    : false;
+  // const estimateProgressBarColor = hasExceededEstimate
+  //   ? {
+  //       bar: "#ef4444",
+  //       label: "#ef4444",
+  //       labelBg: "#ef444444",
+  //     }
+  //   : {
+  //       bar: "#22c55e",
+  //       label: "#22c55e",
+  //       labelBg: "#22c55e44",
+  //     };
+
+  let estimateMultiple = 1,
+    i = 2;
+  if (projectDetailsQuery.data) {
+    while (
+      projectDetailsQuery.data.total_estimated_seconds * i <
+      projectDetailsQuery.data.total_elapsed_seconds
+    ) {
+      estimateMultiple = i;
+    }
+  }
+  const estimateProgressPercentage = projectDetailsQuery.data
+    ? (projectDetailsQuery.data.total_elapsed_seconds /
+        projectDetailsQuery.data.total_estimated_seconds) *
+      100
+    : 0;
+  // const estimateProgressLabel = hasExceededEstimate
+  //   ? `Estimate Exceeded (${(<Text className="font-mono">Math.round(estimateProgressPercentage)</Text>)}%)`
+  //   : `Within Estimate (${(<Text className="font-mono">Math.round(estimateProgressPercentage)</Text>)}%)`;
+
+  const EstimateProgressBar = () => {
+    return (
+      <View
+        className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+      >
+        <View
+          className={`h-full rounded-[inherit] ${hasExceededEstimate ? "bg-red-500" : "bg-green-500"}`}
+          style={{
+            width: `${estimateProgressPercentage}%`,
+          }}
+        />
+      </View>
+    );
+  };
+
+  const EstimateProgressLabel = () => {
+    if (hasExceededEstimate)
+      return (
+        <Text className="px-4 py-2 rounded-md text-red-500 bg-red-500/10">
+          Estimate Exceeded (
+          {
+            <Text className="font-mono text-sm">
+              {Math.round(estimateProgressPercentage)}%
+            </Text>
+          }
+          )
+        </Text>
+      );
+    else
+      return (
+        <Text className="px-4 py-2 rounded-md text-green-500 bg-green-500/10">
+          Within Estimate (
+          {
+            <Text className="font-mono text-sm">
+              {Math.round(estimateProgressPercentage)}%
+            </Text>
+          }
+          )
+        </Text>
+      );
+  };
+
+  // logger.log({ estimateProgressPercentage, hasExceededEstimate });
+
+  // logger.log({ "projectsQuery.data": projectsQuery.data });
+  // logger.log({ currentProjectId });
+  // logger.log({ "projectDetailsQuery.data": projectDetailsQuery.data });
+
   // logger.log({ editingTask });
 
   return (
@@ -217,7 +298,7 @@ export default function ProjectsScreen() {
                 query={projectDetailsQuery}
                 loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
                 emptyFallback={
-                  <View className="h-[250] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+                  <View className="h-[150] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
                     <Text className="text-xl text-neutral-600 dark:text-neutral-500">
                       No data
                     </Text>
@@ -225,7 +306,7 @@ export default function ProjectsScreen() {
                 }
               >
                 {(data) => (
-                  <View className="min-h-[250] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
+                  <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
                     {/* Project name */}
                     <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
                       {data?.name}
@@ -236,22 +317,61 @@ export default function ProjectsScreen() {
                       </Text>
                     )}
 
-                    {/* Task completion progress bar */}
-                    <View
-                      className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
-                    >
+                    {/* Task completion */}
+                    <View className="gap-2">
+                      {/* Task completion progress bar */}
                       <View
-                        className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
-                        style={{
-                          width: data
-                            ? `${Math.floor((data?.completed_task_count / data?.task_count) * 100)}%`
-                            : "0%",
-                        }}
-                      />
+                        className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+                      >
+                        <View
+                          className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
+                          style={{
+                            width: data
+                              ? `${Math.floor((data?.completed_task_count / data?.task_count) * 100)}%`
+                              : "0%",
+                          }}
+                        />
+                      </View>
+
+                      <Text className="font-mono flex-row gap-2 text-sm ml-auto text-neutral-600 dark:text-neutral-200">
+                        <Text className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+                          {data?.completed_task_count}
+                        </Text>
+                        <Text>/{data?.task_count}</Text>
+                      </Text>
                     </View>
 
-                    <View className="flex-row gap-2">
-                      {/* Tasks Completed */}
+                    {/* Estimate progress bar */}
+                    <View className="bg-neutral-100 dark:bg-neutral-700 gap-3 p-4 rounded-md">
+                      <Text className="text-neutral-700 dark:text-neutral-200 text-lg">
+                        Estimate
+                      </Text>
+                      <View className="flex-row gap-4">
+                        {/* Progress bar */}
+                        {/* <View
+                          className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+                        >
+                          <View
+                            className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
+                            style={{
+                              width: data
+                                ? `${estimateProgressPercentage}%`
+                                : "0%",
+                            }}
+                          />
+                        </View> */}
+                        <EstimateProgressBar />
+                        {/* Estimate upper limit */}
+                        <Text className="font-mono text-neutral-700 dark:text-neutral-200">
+                          {estimateMultiple}x
+                        </Text>
+                      </View>
+                      {/* <Text>{estimateProgressLabel}</Text> */}
+                      <EstimateProgressLabel />
+                    </View>
+
+                    {/* Tasks Completed & Total Tasks */}
+                    {/* <View className="flex-row gap-2">
                       <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
                         <View className="flex-row gap-2">
                           <Ionicons
@@ -272,7 +392,6 @@ export default function ProjectsScreen() {
                         </Text>
                       </View>
 
-                      {/* Total Tasks */}
                       <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
                         <View className="flex-row gap-2">
                           <Ionicons
@@ -292,7 +411,7 @@ export default function ProjectsScreen() {
                           {data?.task_count}
                         </Text>
                       </View>
-                    </View>
+                    </View> */}
 
                     <View className="flex-row gap-2">
                       {/* Time Spent */}
@@ -340,19 +459,16 @@ export default function ProjectsScreen() {
                         </Text>
                       </View>
                     </View>
-                  </View>
-                )}
-              </QueryState>
 
-              <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
-                <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
-                  Tasks
-                </Text>
+                    <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
+                      <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
+                        Tasks
+                      </Text>
 
-                <TaskFilter onChange={(tab) => setTaskTab(tab)} />
+                      <TaskFilter onChange={(tab) => setTaskTab(tab)} />
 
-                {/* Quick add task */}
-                {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
+                      {/* Quick add task */}
+                      {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
                     <Checkbox
                       className="size-5 rounded-full"
                       color={"#3b82f6"}
@@ -383,8 +499,11 @@ export default function ProjectsScreen() {
                     />
                   </View> */}
 
-                {/* <TaskList tasks={tasks} /> */}
-              </View>
+                      {/* <TaskList tasks={tasks} /> */}
+                    </View>
+                  </View>
+                )}
+              </QueryState>
             </View>
           </>
         }
@@ -456,6 +575,15 @@ export default function ProjectsScreen() {
                 className="absolute inset-0 border border-neutral-400 px-4 flex-1 rounded-md font-mono text-neutral-800 dark:text-neutral-300"
                 placeholder="Esimate"
                 value={editingTask?.estimated_minutes?.toString()}
+                onChangeText={(text) => {
+                  const minutes = parseInt(text, 10);
+                  const seconds = isNaN(minutes) ? 0 : minutes * 60;
+                  setEditingTask((prev) => ({
+                    ...prev,
+                    estimated_seconds: seconds,
+                    estimated_minutes: Math.floor(seconds / 60),
+                  }));
+                }}
               />
               <Text className="absolute right-4 bottom-1 text-neutral-400 font-medium">
                 mins
@@ -493,7 +621,9 @@ export default function ProjectsScreen() {
         </Pressable>
       </Modal>
 
-      {taskTab === "completed" ? null : (
+      {projectsQuery.data &&
+      projectsQuery.data.length > 0 &&
+      taskTab !== "completed" ? (
         // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -532,8 +662,8 @@ export default function ProjectsScreen() {
             />
           </View>
         </KeyboardAvoidingView>
-        // </TouchableWithoutFeedback>
-      )}
+      ) : // </TouchableWithoutFeedback>
+      null}
 
       {/* Add Task (floating) */}
       <QueryState

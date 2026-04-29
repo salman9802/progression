@@ -31,6 +31,10 @@ export function useProject(id: string) {
 }
 
 export function useProjectDetails(id: string | undefined) {
+  // console.log("===============");
+  // console.log("id in `useProjectDetails`: ", id);
+  // console.log("!!id: ", !!id);
+  // console.log("===============");
   return useQuery({
     queryKey: projectKeys.details(id),
     queryFn: () => getProjectDetails(id),

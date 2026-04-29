@@ -6,6 +6,7 @@ import { useTimer } from "@/contexts/timer";
 import { TTaskDetails } from "@/db/schema";
 import { useMarkTaskCompleted } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
+import { useTheme } from "@/providers/ThemeProvider";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import Toast from "react-native-toast-message";
@@ -18,6 +19,7 @@ type TaskItemProps = {
 const TaskListItem = ({ task, onEdit }: TaskItemProps) => {
   const logger = React.useMemo(() => new Logger("TaskItem"), []);
 
+  const { resolvedTheme } = useTheme();
   const { activeTask, startTimer, stopTimer } = useTimer();
 
   // const [completed, setCompleted] = React.useState(task.completed);
@@ -93,7 +95,11 @@ const TaskListItem = ({ task, onEdit }: TaskItemProps) => {
                 stopTimer();
               }}
             >
-              <Feather name="pause" size={18} color="black" />
+              <Feather
+                name="pause"
+                size={18}
+                color={resolvedTheme === "light" ? "#262626" : "#f5f5f5"}
+              />
             </Pressable>
           ) : (
             <Pressable
@@ -101,7 +107,11 @@ const TaskListItem = ({ task, onEdit }: TaskItemProps) => {
                 startTimer(task);
               }}
             >
-              <Feather name="play" size={18} color="black" />
+              <Feather
+                name="play"
+                size={18}
+                color={resolvedTheme === "light" ? "#262626" : "#f5f5f5"}
+              />
             </Pressable>
           )}
         </View>

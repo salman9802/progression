@@ -1,6 +1,8 @@
 import CTextInput from "@/components/CTextInput";
 import { getDb } from "@/db";
 import { TProject } from "@/db/schema";
+import { projectKeys } from "@/hooks/projects";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -141,6 +143,8 @@ const defaultProject: TProject = {
 };
 
 const AddProjectScreen = () => {
+  const queryClient = useQueryClient();
+
   const [selected, setSelected] = useState<string>("bg-primary-500");
   const [showColorModal, setShowColorModal] = useState(false);
   // const [project, setProject] = useState<TProject>(defaultProject);
@@ -167,9 +171,9 @@ const AddProjectScreen = () => {
           0,
           now,
           now,
-        ]
+        ],
       );
-      // console.log("Project added");
+      queryClient.invalidateQueries({ queryKey: projectKeys.all });
       Toast.show({
         type: "success",
         text1: "Project added",

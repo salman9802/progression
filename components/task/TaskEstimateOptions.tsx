@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-type QuickEstimateOptionsProps = {
+type TaskEstimateOptionsProps = {
   estimatedSeconds: number | undefined;
   onEstimateChange: (esimatedSeconds: number) => any;
 };
@@ -9,9 +9,9 @@ type QuickEstimateOptionsProps = {
 const TaskEstimateOptions = ({
   estimatedSeconds,
   onEstimateChange,
-}: QuickEstimateOptionsProps) => {
+}: TaskEstimateOptionsProps) => {
   return (
-    <View className="w-full">
+    <View className="w-full p-2 rounded-md bg-neutral-200 dark:bg-neutral-600">
       <View className="flex-row gap-2 w-full">
         {/* -5 mins */}
         <TouchableOpacity

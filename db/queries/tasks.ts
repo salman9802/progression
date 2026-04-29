@@ -55,7 +55,7 @@ export async function updateTask({
 
 export async function startTimer(id: string) {
   getDb().execSync(
-    `UPDATE tasks SET timer_started_at = CURRENT_UNIX_TIMESTAMP WHERE id = '${id}'`,
+    `UPDATE tasks SET timer_started_at = '${Date.now()}' WHERE id = '${id}'`,
   );
 }
 

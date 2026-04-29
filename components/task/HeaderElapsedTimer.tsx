@@ -18,7 +18,7 @@ const HeaderElapsedTimer = () => {
   );
 
   return (
-    <Text className="text-xl font-semibold font-mono">
+    <Text className="text-xl font-semibold font-mono text-neutral-900 dark:text-neutral-50">
       {minutes}:{seconds}
     </Text>
   );

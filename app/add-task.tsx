@@ -4,6 +4,8 @@ import CTextInput from "@/components/CTextInput";
 import QuickEstimateOptions from "@/components/task/TaskEstimateOptions";
 import { getDb } from "@/db";
 import { TProjectDetails, TTask } from "@/db/schema";
+import { tasksKeys } from "@/hooks/tasks";
+import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -11,6 +13,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 const AddTaskScreen = () => {
+  const queryClient = useQueryClient();
+
   const { project } = useLocalSearchParams();
   const parsedProject: TProjectDetails | null = project
     ? JSON.parse(project as string)
@@ -23,6 +27,7 @@ const AddTaskScreen = () => {
     reset,
     setValue,
     getValues,
+    watch,
   } = useForm<TTask>();
 
   const addTask: SubmitHandler<TTask> = (task) => {
@@ -49,6 +54,9 @@ const AddTaskScreen = () => {
         ],
       );
       // console.log("Project added");
+      queryClient.invalidateQueries({
+        queryKey: tasksKeys.byProjectId(),
+      });
       Toast.show({
         type: "success",
         text1: "Task added",
@@ -124,7 +132,11 @@ const AddTaskScreen = () => {
             inputMode="numeric"
             style={{ textAlignVertical: "top" }}
             placeholder="Estimation (mins)"
-            value={field.value ? Math.floor(field.value / 60).toString() : ""}
+            value={
+              field.value != undefined
+                ? Math.floor(field.value / 60).toString()
+                : ""
+            }
             onChangeText={(text) => {
               const minutes = parseInt(text, 10);
               const seconds = isNaN(minutes) ? 0 : minutes * 60;
@@ -202,9 +214,9 @@ const AddTaskScreen = () => {
         </TouchableOpacity>
       </View> */}
 
-      <View className="bg-neutral-50 p-2 rounded-md">
+      <View className="rounded-md">
         <QuickEstimateOptions
-          estimatedSeconds={getValues("estimated_seconds")}
+          estimatedSeconds={watch("estimated_seconds")}
           onEstimateChange={(estimatedSeconds) => {
             setValue("estimated_seconds", estimatedSeconds);
           }}
