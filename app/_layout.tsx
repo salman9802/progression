@@ -12,6 +12,7 @@ import { toastConfig } from "@/config/toast";
 import { TimerProvider } from "@/contexts/timer";
 import { getDb, initDb } from "@/db";
 import { ThemeProvider, useTheme } from "@/providers/ThemeProvider";
+// import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   MutationCache,
   QueryCache,
@@ -75,6 +76,10 @@ export default function RootLayout() {
     return null;
   }
 
+  // <GestureHandlerRootView style={{ flex: 1 }}>
+  {
+    /* // <BottomSheetModalProvider> */
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <TimerProvider>
@@ -82,6 +87,12 @@ export default function RootLayout() {
       </TimerProvider>
     </QueryClientProvider>
   );
+  {
+    /* </bottomsheetmodalprovider> */
+  }
+  {
+    /* </GestureHandlerRootView> */
+  }
 }
 
 const queryClient = new QueryClient({

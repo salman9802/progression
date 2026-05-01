@@ -22,6 +22,8 @@ export default function TabLayout() {
   // const { activeTask, startTimer, stopTimer } = useTimer();
 
   return (
+    // <GestureHandlerRootView style={{ flex: 1 }}>
+    // <BottomSheetModalProvider>
     <Tabs
       screenOptions={{
         // headerRight: () => {
@@ -109,5 +111,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    // {/* </BottomSheetModalProvider> */}
+    // </GestureHandlerRootView>
   );
 }

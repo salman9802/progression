@@ -3,6 +3,7 @@ import * as Crypto from "expo-crypto";
 import appColors from "@/colors";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
+import QuickAddTask, { QuickAddTaskRef } from "@/components/task/QuickAddTask";
 import QuickEstimateOptions from "@/components/task/TaskEstimateOptions";
 import TaskFilter, { TaskTab } from "@/components/task/TaskFilter";
 import TaskListItem from "@/components/task/TaskListItem";
@@ -12,16 +13,13 @@ import { projectKeys, useProjectDetails, useProjects } from "@/hooks/projects";
 import { tasksKeys, useTasksByProjectId, useUpdateTask } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Entypo, Ionicons } from "@expo/vector-icons";
+import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
-import Checkbox from "expo-checkbox";
 import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -54,6 +52,8 @@ export default function ProjectsScreen() {
 
   // tasks
   const [quickAddText, setQuickAddText] = useState("");
+  // const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const quickAddRef = useRef<QuickAddTaskRef>(null);
   const [editingTask, setEditingTask] = useState<Partial<TTaskDetails> | null>(
     null,
   );
@@ -637,7 +637,7 @@ export default function ProjectsScreen() {
         </Pressable>
       </Modal>
 
-      {projectsQuery.data &&
+      {/* {projectsQuery.data &&
       projectsQuery.data.length > 0 &&
       taskTab !== "completed" ? (
         // <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -646,7 +646,7 @@ export default function ProjectsScreen() {
           keyboardVerticalOffset={80}
           //       style={{ flex: 1 }}
         >
-          {/* Quick add task */}
+           Quick add task 
           <View className="-mt-2 px-3 flex-row items-center gap-4">
             <Checkbox
               className="size-5 rounded-full"
@@ -679,7 +679,24 @@ export default function ProjectsScreen() {
           </View>
         </KeyboardAvoidingView>
       ) : // </TouchableWithoutFeedback>
-      null}
+      null} */}
+
+      {/* <QuickAddTask
+        value={quickAddText} */}
+      <QuickAddTask
+        ref={quickAddRef}
+        onChangeText={setQuickAddText}
+        returnKeyType="done"
+        onSubmitEditing={() => {
+          if (!quickAddText.trim()) return;
+
+          quickAddTask(quickAddText);
+          setQuickAddText("");
+          quickAddRef.current?.close();
+        }}
+        placeholder="Quick Add Task"
+        // open={quickAddOpen}
+      />
 
       {/* Add Task (floating) */}
       <QueryState
@@ -694,26 +711,46 @@ export default function ProjectsScreen() {
         }
       >
         {(data) => (
-          <TouchableOpacity
-            className={`absolute right-5 bottom-7 p-4 rounded-full ${data ? data.color : "bg-primary-500"}`}
-            onPress={() => {
-              router.push({
-                pathname: "/add-task",
-                params: { project: JSON.stringify(data) },
-              });
-            }}
-          >
-            <Entypo
-              name="add-to-list"
-              size={24}
-              className="text-neutral-50" /* color={theme.light} */
-              color={
-                resolvedTheme === "light"
-                  ? colors.neutral[900]
-                  : colors.neutral[50]
-              }
-            />
-          </TouchableOpacity>
+          <View className="absolute right-5 bottom-7 flex-row gap-2 items-end justify-center">
+            <TouchableOpacity
+              className={`flex items-center justify-center size-10 p-2 rounded-full ${data ? data.color : "bg-primary-500"}`}
+              onPress={() => {
+                // setQuickAddOpen(true);
+                quickAddRef.current?.open();
+              }}
+            >
+              <FontAwesome5
+                name="fire"
+                size={18}
+                className="text-neutral-50" /* color={theme.light} */
+                color={
+                  resolvedTheme === "light"
+                    ? colors.neutral[900]
+                    : colors.neutral[50]
+                }
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`p-4 rounded-full ${data ? data.color : "bg-primary-500"}`}
+              onPress={() => {
+                router.push({
+                  pathname: "/add-task",
+                  params: { project: JSON.stringify(data) },
+                });
+              }}
+            >
+              <Entypo
+                name="add-to-list"
+                size={24}
+                className="text-neutral-50" /* color={theme.light} */
+                color={
+                  resolvedTheme === "light"
+                    ? colors.neutral[900]
+                    : colors.neutral[50]
+                }
+              />
+            </TouchableOpacity>
+          </View>
         )}
       </QueryState>
     </View>
