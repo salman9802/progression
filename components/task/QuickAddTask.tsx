@@ -36,6 +36,8 @@
 
 // export default QuickAddTask;
 
+import colors from "@/colors";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { BlurView } from "expo-blur";
 import React, {
@@ -150,7 +152,8 @@ const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
           >
             <CTextInput {...inputProps} />
             <Text className="absolute right-6 top-1/2 text-mono text-sm px-2 py-1 rounded-md bg-primary-300/10 text-primary-300">
-              Enter
+              <Text>Enter</Text>
+              <AntDesign name="enter" size={12} color={colors.primary[500]} />
             </Text>
           </Animated.View>
         </View>

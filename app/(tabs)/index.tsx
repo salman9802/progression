@@ -723,11 +723,12 @@ export default function ProjectsScreen() {
                 name="fire"
                 size={18}
                 className="text-neutral-50" /* color={theme.light} */
-                color={
-                  resolvedTheme === "light"
-                    ? colors.neutral[900]
-                    : colors.neutral[50]
-                }
+                // color={
+                //   resolvedTheme === "light"
+                //     ? colors.neutral[900]
+                //     : colors.neutral[50]
+                // }
+                color={appColors.secondary[500]}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -748,6 +749,7 @@ export default function ProjectsScreen() {
                     ? colors.neutral[900]
                     : colors.neutral[50]
                 }
+                // color={appColors.secondary[300]}
               />
             </TouchableOpacity>
           </View>
