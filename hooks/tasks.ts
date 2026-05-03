@@ -1,9 +1,11 @@
 import {
+  getTaskDetailsByTaskId,
   getTasksByProjectId,
+  getTasksByTaskId,
   markTaskCompleted,
   startTimer,
   stopTimer,
-  updateTask,
+  updateTask
 } from "@/db/queries/tasks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "./projects";
@@ -18,13 +20,32 @@ export const tasksKeys = {
 
   detail: (id: string) => ["projects", id] as const,
   details: (id: string | undefined) => ["projects", id, "details"] as const,
+
+  byTaskId: (taskId?: string) => ["tasks/task", taskId] as const,
+  taskDetails: (id?: string | undefined) => ["tasks/task/details", id] as const,
 };
+
+export function useTaskDetailsQuery(id: string | undefined) {
+  return useQuery({
+    queryKey: tasksKeys.taskDetails(id),
+    queryFn: () => getTaskDetailsByTaskId(id),
+    enabled: !!id, // don't run if id is empty/undefined
+  });
+}
 
 export function useTasksByProjectId(projectId: string | undefined) {
   return useQuery({
     queryKey: tasksKeys.byProjectId(projectId!),
     queryFn: () => getTasksByProjectId(projectId!),
     enabled: !!projectId,
+  });
+}
+
+export function useTasksByTaskId(taskId: string | undefined) {
+  return useQuery({
+    queryKey: tasksKeys.byTaskId(taskId!),
+    queryFn: () => getTasksByTaskId(taskId!),
+    enabled: !!taskId,
   });
 }
 
