@@ -321,7 +321,7 @@ const TaskScreen = () => {
 
   return (
     <Screen>
-      <View className="flex-1 items-center justify-center py-6 px-3 w-full bg-neutral-100 dark:bg-neutral-900">
+      <View className="bg-neutral-100 dark:bg-neutral-900">
         <FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
