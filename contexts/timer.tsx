@@ -6,22 +6,23 @@ const TimerContext = React.createContext<{
   activeTask: TTaskDetails | null;
   startTimer: (task: TTaskDetails) => void;
   stopTimer: () => void;
-  elapsedSeconds: number;
+  // elapsedSeconds: number;
+  startTime: number | null;
 } | null>(null);
 
 export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeTask, setActiveTask] = React.useState<TTaskDetails | null>(null);
   const [startTime, setStartTime] = React.useState<number | null>(null);
-  const [now, setNow] = React.useState(() => Date.now());
+  // const [now, setNow] = React.useState(() => Date.now());
 
   // Effect to update tick
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
+  // React.useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setNow(Date.now());
+  //   }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // start timer
   const startTimerMutation = useStartTimer();
@@ -60,14 +61,15 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // elapsed seconds
-  let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
-  elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
+  // let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
+  // elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
 
   const value = {
     activeTask,
     startTimer,
     stopTimer,
-    elapsedSeconds,
+    // elapsedSeconds,
+    startTime,
   };
 
   return (

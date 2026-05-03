@@ -126,7 +126,9 @@ const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
         //  animationType="slide"
         animationType="none"
       >
-        <View style={{ padding: 8, flex: 1, justifyContent: "flex-end" }}>
+        <View
+          style={{ paddingHorizontal: 8, flex: 1, justifyContent: "flex-end" }}
+        >
           {/* 👇 BACKDROP (tap outside to close) */}
           <Pressable
             // className="backdrop-blur-2xl"

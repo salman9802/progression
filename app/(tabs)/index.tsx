@@ -1,10 +1,14 @@
 import * as Crypto from "expo-crypto";
 
 import appColors from "@/colors";
+import CTextInput from "@/components/CTextInput";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
 import QuickAddTask, { QuickAddTaskRef } from "@/components/task/QuickAddTask";
-import QuickEstimateOptions from "@/components/task/TaskEstimateOptions";
+import {
+  default as QuickEstimateOptions,
+  default as TaskEstimateOptions,
+} from "@/components/task/TaskEstimateOptions";
 import TaskFilter, { TaskTab } from "@/components/task/TaskFilter";
 import TaskListItem from "@/components/task/TaskListItem";
 import { getDb } from "@/db";
@@ -15,11 +19,17 @@ import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
+import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
+  Animated,
+  Dimensions,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -27,6 +37,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import colors from "tailwindcss/colors";
 
@@ -51,12 +62,12 @@ export default function ProjectsScreen() {
   }, [projectsQuery.data]);
 
   // tasks
+  // ------------------------- Quick Edit Task -------------------------
   const [quickAddText, setQuickAddText] = useState("");
   // const [quickAddOpen, setQuickAddOpen] = useState(false);
   const quickAddRef = useRef<QuickAddTaskRef>(null);
-  const [editingTask, setEditingTask] = useState<Partial<TTaskDetails> | null>(
-    null,
-  );
+  const [quickEditingTask, setQuickEditingTask] =
+    useState<Partial<TTaskDetails> | null>(null);
 
   const tasksQuery = useTasksByProjectId(currentProjectId);
 
@@ -113,13 +124,13 @@ export default function ProjectsScreen() {
 
   const updateTaskMutation = useUpdateTask();
   const handleTaskQuickEditEstimate = () => {
-    if (editingTask == null) return;
+    if (quickEditingTask == null) return;
 
     updateTaskMutation.mutate(
       {
-        id: editingTask.id!,
+        id: quickEditingTask.id!,
         payload: {
-          estimated_seconds: editingTask.estimated_seconds,
+          estimated_seconds: quickEditingTask.estimated_seconds,
           // estimated_minutes: editingTask.estimated_seconds
           //   ? Math.floor(editingTask.estimated_seconds / 60)
           //   : 0,
@@ -127,7 +138,7 @@ export default function ProjectsScreen() {
       },
       {
         onSuccess: () => {
-          setEditingTask(null);
+          setQuickEditingTask(null);
           Toast.show({
             type: "success",
             text1: "Estimate updated",
@@ -138,6 +149,98 @@ export default function ProjectsScreen() {
         },
       },
     );
+  };
+
+  // ------------------------- Edit Task -------------------------
+  const [editingTask, setEditingTask] = useState<Partial<TTaskDetails> | null>(
+    null,
+  );
+  const screenHeight = Dimensions.get("window").height;
+  const translateY = useRef(new Animated.Value(screenHeight)).current;
+  useEffect(() => {
+    if (editingTask !== null) {
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(translateY, {
+        toValue: screenHeight,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [editingTask]);
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    getValues,
+    watch,
+  } = useForm<TTaskDetails>({
+    // defaultValues: task,
+  });
+  useEffect(() => {
+    if (editingTask) reset(editingTask);
+  }, [editingTask]);
+
+  const editTask: SubmitHandler<TTaskDetails> = (editingTask) => {
+    if (editingTask == undefined) return;
+
+    const db = getDb();
+
+    try {
+      // remove computed values
+      // delete editingTask.estimated_minutes;
+      // editingTask.elapsed_minutes = undefined;
+      const { estimated_minutes, elapsed_minutes, ...editingPayload } =
+        editingTask;
+
+      console.log("editingPayload", editingPayload);
+
+      const now = Date.now();
+      updateTaskMutation.mutate(
+        {
+          id: editingTask.id!,
+          payload: {
+            ...editingPayload,
+            updated_at: now,
+
+            // ...editingTask,
+            // estimated_minutes: undefined,
+            // elapsed_minutes: undefined,
+            // estimated_seconds: editingTask.estimated_seconds,
+            // estimated_minutes: editingTask.estimated_seconds
+            //   ? Math.floor(editingTask.estimated_seconds / 60)
+            //   : 0,
+          },
+        },
+        {
+          onSuccess: () => {
+            setEditingTask(null);
+            Toast.show({
+              type: "success",
+              text1: "Task Updated",
+            });
+          },
+          onError: (error) => {
+            console.error(error);
+          },
+        },
+      );
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to edit task",
+        text2: JSON.stringify(error),
+      });
+      console.error("Failed to edit task");
+      console.error(error);
+    }
   };
 
   // ------------------------- Estimate Progress bar -------------------------
@@ -248,7 +351,11 @@ export default function ProjectsScreen() {
         data={tasks}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TaskListItem task={item} onEdit={() => setEditingTask(item)} />
+          <TaskListItem
+            task={item}
+            onQuickEdit={() => setQuickEditingTask(item)}
+            onEdit={() => setEditingTask(item)}
+          />
         )}
         contentContainerStyle={{
           paddingBottom: 18, // space for input
@@ -569,14 +676,14 @@ export default function ProjectsScreen() {
 
       {/* Quick Edit Estimate Time */}
       <Modal
-        visible={editingTask !== null}
+        visible={quickEditingTask !== null}
         transparent
         animationType="fade"
-        onRequestClose={() => setEditingTask(null)}
+        onRequestClose={() => setQuickEditingTask(null)}
       >
         <Pressable
           className="flex-1 bg-black/40 justify-center items-center"
-          onPress={() => setEditingTask(null)} // Close modal on overlay tap
+          onPress={() => setQuickEditingTask(null)} // Close modal on overlay tap
         >
           <Pressable
             className="w-[90%] bg-white dark:bg-neutral-800 rounded-xl p-4"
@@ -590,11 +697,11 @@ export default function ProjectsScreen() {
               <TextInput
                 className="absolute inset-0 border border-neutral-400 px-4 flex-1 rounded-md font-mono text-neutral-800 dark:text-neutral-300"
                 placeholder="Esimate"
-                value={editingTask?.estimated_minutes?.toString()}
+                value={quickEditingTask?.estimated_minutes?.toString()}
                 onChangeText={(text) => {
                   const minutes = parseInt(text, 10);
                   const seconds = isNaN(minutes) ? 0 : minutes * 60;
-                  setEditingTask((prev) => ({
+                  setQuickEditingTask((prev) => ({
                     ...prev,
                     estimated_seconds: seconds,
                     estimated_minutes: Math.floor(seconds / 60),
@@ -607,9 +714,9 @@ export default function ProjectsScreen() {
             </View>
 
             <QuickEstimateOptions
-              estimatedSeconds={editingTask?.estimated_seconds}
+              estimatedSeconds={quickEditingTask?.estimated_seconds}
               onEstimateChange={(estimatedSeconds) => {
-                setEditingTask((prevTask) => ({
+                setQuickEditingTask((prevTask) => ({
                   ...prevTask,
                   estimated_seconds: estimatedSeconds,
                   estimated_minutes: Math.floor(estimatedSeconds / 60),
@@ -620,7 +727,7 @@ export default function ProjectsScreen() {
             <View className="flex-row mt-3 gap-2">
               <Pressable
                 className="px-4 py-2 rounded-md  bg-neutral-100 dark:bg-neutral-700"
-                onPress={() => setEditingTask(null)}
+                onPress={() => setQuickEditingTask(null)}
               >
                 <Text className="text-neutral-800 dark:text-neutral-300">
                   Cancel
@@ -635,6 +742,170 @@ export default function ProjectsScreen() {
             </View>
           </Pressable>
         </Pressable>
+      </Modal>
+
+      {/* ------------------------- Editing Modal -------------------------*/}
+      <Modal
+        visible={editingTask !== null}
+        transparent
+        animationType="none"
+        onRequestClose={() => setQuickEditingTask(null)}
+      >
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View
+            style={{
+              paddingHorizontal: 8,
+              flex: 1,
+              justifyContent: "flex-end",
+            }}
+          >
+            {/* Sheet */}
+            <Animated.View
+              style={{
+                transform: [{ translateY }],
+                // height: 400,
+                // height: "fit-content",
+                height: "50%",
+                backgroundColor: "white",
+                padding: 16,
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+              }}
+              className="relative z-20"
+            >
+              {/* <View
+                {...panResponderRef.panHandlers}
+                className="items-center py-2"
+              >
+                <View className="w-10 h-1.5 rounded-full bg-neutral-400" />
+              </View> */}
+              <ScrollView
+                contentContainerStyle={{ padding: 16 }}
+                contentContainerClassName="items-center gap-6 justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900"
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
+                showsVerticalScrollIndicator={false}
+              >
+                <Text className="font-bold text-primary-500 text-xl">
+                  Edit Task
+                </Text>
+                {/* Name */}
+                <Controller
+                  control={control}
+                  name="name"
+                  rules={{ required: "Name is required" }}
+                  render={({ field }) => (
+                    <CTextInput
+                      // className="w-full px-6 py-3 rounded-md bg-neutral-50 dark:bg-neutral-800"
+                      placeholder="Name"
+                      autoFocus={false}
+                      value={field.value}
+                      onChangeText={field.onChange}
+                      onFocus={() => console.log("FOCUS")}
+                      onBlur={() => console.log("BLUR")}
+                    />
+                  )}
+                />
+                {errors.name && (
+                  <Text className="text-sm text-red-500 self-start">
+                    {errors.name.message}
+                  </Text>
+                )}
+
+                {/* Description */}
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field }) => (
+                    <CTextInput
+                      // className="w-full px-6 py-3 rounded-md bg-neutral-50 dark:bg-neutral-800"
+                      className="h-[100]"
+                      multiline
+                      // numberOfLines={4}
+                      style={{ textAlignVertical: "top" }}
+                      placeholder="Description"
+                      value={field.value ?? ""}
+                      onChangeText={field.onChange}
+                    />
+                  )}
+                />
+                {errors.description && (
+                  <Text className="text-sm text-red-500 self-start">
+                    {errors.description.message}
+                  </Text>
+                )}
+
+                {/* Estimation (mins) */}
+                <Controller
+                  control={control}
+                  name="estimated_seconds"
+                  // rules={{onChange: (e) => {
+                  // }}}
+                  render={({ field }) => (
+                    <CTextInput
+                      // className="w-full px-6 py-3 rounded-md bg-neutral-50 dark:bg-neutral-800"
+                      className="font-mono"
+                      inputMode="numeric"
+                      style={{ textAlignVertical: "top" }}
+                      placeholder="Estimation (mins)"
+                      value={
+                        field.value != undefined
+                          ? Math.floor(field.value / 60).toString()
+                          : ""
+                      }
+                      onChangeText={(text) => {
+                        const minutes = parseInt(text, 10);
+                        const seconds = isNaN(minutes) ? 0 : minutes * 60;
+                        field.onChange(seconds);
+                      }}
+                    />
+                  )}
+                />
+                {errors.estimated_seconds && (
+                  <Text className="text-sm text-red-500 self-start">
+                    {errors.estimated_seconds.message}
+                  </Text>
+                )}
+
+                <View className="rounded-md">
+                  <TaskEstimateOptions
+                    estimatedSeconds={watch("estimated_seconds")}
+                    onEstimateChange={(estimatedSeconds) => {
+                      setValue("estimated_seconds", estimatedSeconds);
+                    }}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleSubmit(editTask)}
+                  className={`mt-8 px-6 py-3 rounded-md self-end bg-primary-500`}
+                >
+                  <Text className="text-neutral-50">Edit task</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </Animated.View>
+
+            {/* 👇 BACKDROP (tap outside to close) */}
+            <View className="absolute inset-0">
+              <Pressable
+                // className="backdrop-blur-2xl"
+                // className="absolute inset-0 z-10"
+                // className="absolute inset-0"
+                style={{ flex: 1 }}
+                onPress={() => setEditingTask(null)}
+              >
+                <BlurView
+                  intensity={50}
+                  tint="dark" // "light" | "dark" | "default"
+                  style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.3)" }}
+                />
+              </Pressable>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* {projectsQuery.data &&

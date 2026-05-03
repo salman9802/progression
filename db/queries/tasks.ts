@@ -46,7 +46,10 @@ export async function updateTask({
   if (values.length === 0) return;
 
   const updateStmt = values
-    .map((value) => `${value[0]} = '${value[1]}'`)
+    .map(
+      (value) =>
+        `${value[0]} = ${value[1] === null ? "NULL" : `'${value[1]}'`}`,
+    )
     .join(",");
   // const data = values.map((value) => value[1]);
 
