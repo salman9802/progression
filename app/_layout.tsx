@@ -13,6 +13,7 @@ import { TimerProvider } from "@/contexts/timer";
 import { getDb, initDb } from "@/db";
 import { ThemeProvider, useTheme } from "@/providers/ThemeProvider";
 // import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import HeaderRight from "@/components/header/HeaderRight";
 import {
   MutationCache,
   QueryCache,
@@ -21,6 +22,7 @@ import {
 } from "@tanstack/react-query";
 import { Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 
 export {
@@ -81,13 +83,15 @@ export default function RootLayout() {
     /* // <BottomSheetModalProvider> */
   }
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <TimerProvider>
-          <RootLayoutNav />
-        </TimerProvider>
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <TimerProvider>
+            <RootLayoutNav />
+          </TimerProvider>
+        </QueryClientProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
   {
     /* </bottomsheetmodalprovider> */
@@ -192,6 +196,14 @@ function RootLayoutNav() {
             title: "Add Task",
             header: () => <ScreenHeader title="Add Task" />,
             presentation: "modal",
+          }}
+        />
+        <Stack.Screen
+          name="task/[id]"
+          options={{
+            title: "Task",
+
+            headerRight: () => <HeaderRight />,
           }}
         />
       </Stack>

@@ -9,6 +9,7 @@ import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
+import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 
 type TaskItemProps = {
@@ -60,6 +61,14 @@ const TaskListItem = ({ task, onQuickEdit, onEdit }: TaskItemProps) => {
   return (
     <>
       <Pressable
+        onPress={() =>
+          router.push({
+            pathname: "/task/[id]",
+            params: {
+              id: task.id,
+            },
+          })
+        }
         onLongPress={() => {
           // setIsEditing(true);
           onEdit();

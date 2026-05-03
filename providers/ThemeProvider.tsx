@@ -118,7 +118,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [preference, setPreference] = React.useState<TThemeType>("system");
   const [systemTheme, setSystemTheme] = React.useState<TTheme>(
-    Appearance.getColorScheme() ?? "light"
+    Appearance.getColorScheme() ?? "light",
   );
 
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -162,7 +162,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     >
       <StatusBar
         style={resolvedTheme === "dark" ? "light" : "dark"}
-        translucent
+        translucent={false}
         // backgroundColor="transparent"
         backgroundColor={
           resolvedTheme === "light" ? colors.neutral[100] : colors.neutral[900]
