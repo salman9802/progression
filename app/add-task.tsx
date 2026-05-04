@@ -3,7 +3,7 @@ import * as Crypto from "expo-crypto";
 import CTextInput from "@/components/CTextInput";
 import QuickEstimateOptions from "@/components/task/TaskEstimateOptions";
 import { getDb } from "@/db";
-import { TProjectDetails, TTask } from "@/db/schema";
+import { TProjectDetails, TTask, TTaskDetails } from "@/db/schema";
 import { tasksKeys } from "@/hooks/tasks";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -15,9 +15,12 @@ import Toast from "react-native-toast-message";
 const AddTaskScreen = () => {
   const queryClient = useQueryClient();
 
-  const { project } = useLocalSearchParams();
+  const { project, task } = useLocalSearchParams();
   const parsedProject: TProjectDetails | null = project
     ? JSON.parse(project as string)
+    : null;
+  const parsedTask: TTaskDetails | null = task
+    ? JSON.parse(task as string)
     : null;
 
   const {
@@ -34,34 +37,66 @@ const AddTaskScreen = () => {
     const db = getDb();
 
     try {
-      const now = Date.now();
+      if (parsedProject !== null) {
+        // create root task (for a project)
 
-      //   TODO: handle sub task creation
-      db.runSync(
-        "INSERT INTO tasks (id, project_id, parent_id, name, description, estimated_seconds, elapsed_seconds, timer_started_at, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          Crypto.randomUUID(),
-          parsedProject?.id || null,
-          null,
-          task.name,
-          task.description,
-          task.estimated_seconds,
-          0,
-          null,
-          0,
-          now,
-          now,
-        ],
-      );
-      // console.log("Project added");
-      queryClient.invalidateQueries({
-        queryKey: tasksKeys.byProjectId(parsedProject?.id),
-      });
-      Toast.show({
-        type: "success",
-        text1: "Task added",
-      });
-      router.push("/");
+        const now = Date.now();
+        db.runSync(
+          "INSERT INTO tasks (id, project_id, parent_id, name, description, estimated_seconds, elapsed_seconds, timer_started_at, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            Crypto.randomUUID(),
+            parsedProject?.id || null,
+            null,
+            task.name,
+            task.description,
+            task.estimated_seconds,
+            0,
+            null,
+            0,
+            now,
+            now,
+          ],
+        );
+        // console.log("Project added");
+        queryClient.invalidateQueries({
+          queryKey: tasksKeys.byProjectId(parsedProject?.id),
+        });
+        Toast.show({
+          type: "success",
+          text1: "Task added",
+        });
+        router.push("/");
+      } else if (parsedTask !== null) {
+        // create sub task
+
+        const now = Date.now();
+        db.runSync(
+          "INSERT INTO tasks (id, project_id, parent_id, name, description, estimated_seconds, elapsed_seconds, timer_started_at, position, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+          [
+            Crypto.randomUUID(),
+            parsedTask?.project_id || null,
+            parsedTask?.id || null,
+            task.name,
+            task.description,
+            task.estimated_seconds,
+            0,
+            null,
+            0,
+            now,
+            now,
+          ],
+        );
+        // console.log("Project added");
+        queryClient.invalidateQueries({
+          queryKey: tasksKeys.byTaskId(parsedTask?.id),
+        });
+        Toast.show({
+          type: "success",
+          text1: "Task added",
+        });
+        // NOTE: add proper redirection after creating subtask later
+        router.push("/");
+      }
     } catch (error) {
       Toast.show({
         type: "error",

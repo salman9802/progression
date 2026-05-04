@@ -344,7 +344,7 @@ const TaskScreen = () => {
           ListHeaderComponent={
             <>
               <View className="items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
-                {/* Project overview card */}
+                {/* Task overview card */}
                 <QueryState
                   query={taskDetailsQuery}
                   loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
@@ -913,7 +913,7 @@ const TaskScreen = () => {
                 onPress={() => {
                   router.push({
                     pathname: "/add-task",
-                    params: { project: JSON.stringify(data) },
+                    params: { task: JSON.stringify(data) },
                   });
                 }}
               >
