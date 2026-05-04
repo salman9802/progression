@@ -1,13 +1,15 @@
 import * as Crypto from "expo-crypto";
 
+import appColors from "@/colors";
 import Screen from "@/components/common/Screen";
 import CTextInput from "@/components/CTextInput";
 import { QueryState } from "@/components/QueryState";
 import { Skeleton } from "@/components/Skeleton";
-import { QuickAddTaskRef } from "@/components/task/QuickAddTask";
+import QuickAddTask, { QuickAddTaskRef } from "@/components/task/QuickAddTask";
 import TaskEstimateOptions from "@/components/task/TaskEstimateOptions";
 import TaskFilter, { TaskTab } from "@/components/task/TaskFilter";
 import TaskListItem from "@/components/task/TaskListItem";
+import { useTimer } from "@/contexts/timer";
 import { getDb } from "@/db";
 import { TTaskDetails } from "@/db/schema";
 import {
@@ -18,10 +20,10 @@ import {
 } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { BlurView } from "expo-blur";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
@@ -45,6 +47,8 @@ const TaskScreen = () => {
   const { resolvedTheme } = useTheme();
   const logger = useMemo(() => new Logger("TaskScreen"), []);
 
+  const { activeTask, startTimer, stopTimer } = useTimer();
+
   const { id: taskId } = useLocalSearchParams();
 
   if (Array.isArray(taskId))
@@ -52,11 +56,13 @@ const TaskScreen = () => {
       <Text>Error: `taskId` is an array form url params in TaskScreen</Text>
     );
 
-  // TODO
   const taskDetailsQuery = useTaskDetailsQuery(taskId);
-  logger.log({
-    taskDetailsQuery,
-  });
+  // logger.log({
+  //   taskDetailsQuery,
+  // });
+  // logger.log({
+  //   elapsed_seconds: taskDetailsQuery.data?.elapsed_seconds,
+  // });
 
   const queryClient = useQueryClient();
   const [taskTab, setTaskTab] = useState<TaskTab>("pending");
@@ -88,7 +94,7 @@ const TaskScreen = () => {
         [
           Crypto.randomUUID(),
           taskDetailsQuery.data ? taskDetailsQuery.data.project_id : null,
-          null,
+          taskDetailsQuery.data ? taskDetailsQuery.data.id : null,
           task,
           "",
           0,
@@ -104,7 +110,7 @@ const TaskScreen = () => {
         text1: "Task added",
       });
       // router.push("/");
-      [(tasksKeys.taskDetails()[0], tasksKeys.byProjectId()[0])].map((key) => {
+      [(tasksKeys.taskDetails()[0], tasksKeys.byTaskId()[0])].map((key) => {
         queryClient.invalidateQueries({
           queryKey: [key],
         });
@@ -243,23 +249,23 @@ const TaskScreen = () => {
 
   // ------------------------- Estimate Progress bar -------------------------
   const hasExceededEstimate = taskDetailsQuery.data
-    ? taskDetailsQuery.data.total_estimated_seconds <
-      taskDetailsQuery.data.total_elapsed_seconds
+    ? taskDetailsQuery.data.estimated_seconds <
+      taskDetailsQuery.data.elapsed_seconds
     : false;
   let estimateMultiple = 1,
     i = 2;
   if (taskDetailsQuery.data) {
     while (
-      taskDetailsQuery.data.total_estimated_seconds * i <
-      taskDetailsQuery.data.total_elapsed_seconds
+      taskDetailsQuery.data.estimated_seconds * i <
+      taskDetailsQuery.data.elapsed_seconds
     ) {
       estimateMultiple = i;
     }
   }
   const estimateProgressPercentage =
     taskDetailsQuery.data && tasksQuery.data && tasksQuery.data.length !== 0
-      ? (taskDetailsQuery.data.total_elapsed_seconds /
-          taskDetailsQuery.data.total_estimated_seconds) *
+      ? (taskDetailsQuery.data.elapsed_seconds /
+          taskDetailsQuery.data.estimated_seconds) *
         100
       : 0;
   const EstimateProgressBar = () => {
@@ -321,7 +327,7 @@ const TaskScreen = () => {
 
   return (
     <Screen>
-      <View className="bg-neutral-100 dark:bg-neutral-900">
+      <View className="flex-1 bg-neutral-100 dark:bg-neutral-900">
         <FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
@@ -352,10 +358,35 @@ const TaskScreen = () => {
                 >
                   {(data) => (
                     <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
-                      {/* Project name */}
-                      <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
-                        {data?.name}
-                      </Text>
+                      <Pressable
+                        onPress={() => {
+                          if (activeTask) {
+                            stopTimer();
+                          } else {
+                            if (taskDetailsQuery.data)
+                              startTimer(taskDetailsQuery.data);
+                          }
+                        }}
+                        className="flex-row gap-3 items-center"
+                      >
+                        {activeTask ? (
+                          <Feather
+                            name="pause"
+                            size={18}
+                            color={appColors.primary[500]}
+                          />
+                        ) : (
+                          <Feather
+                            name="play"
+                            size={18}
+                            color={appColors.primary[500]}
+                          />
+                        )}
+                        {/* Project name */}
+                        <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
+                          {data?.name}
+                        </Text>
+                      </Pressable>
                       {data?.description && (
                         <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
                           {data?.description}
@@ -476,8 +507,7 @@ const TaskScreen = () => {
                             </Text>
                           </View>
                           <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.total_elapsed_minutes}m (
-                            {data?.total_elapsed_minutes}
+                            {data?.elapsed_minutes}m ({data?.elapsed_seconds}
                             s)
                           </Text>
                         </View>
@@ -499,8 +529,8 @@ const TaskScreen = () => {
                             </Text>
                           </View>
                           <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.total_estimated_minutes}m (
-                            {data?.total_estimated_seconds}s)
+                            {data?.estimated_minutes}m (
+                            {data?.estimated_seconds}s)
                           </Text>
                         </View>
                       </View>
@@ -829,6 +859,79 @@ const TaskScreen = () => {
             </View>
           </KeyboardAvoidingView>
         </Modal>
+
+        <QuickAddTask
+          ref={quickAddRef}
+          onChangeText={setQuickAddText}
+          returnKeyType="done"
+          onSubmitEditing={() => {
+            if (!quickAddText.trim()) return;
+
+            quickAddTask(quickAddText);
+            setQuickAddText("");
+            quickAddRef.current?.close();
+          }}
+          placeholder="Quick Add Task"
+          // open={quickAddOpen}
+        />
+
+        {/* Add Task (floating) */}
+        <QueryState
+          query={taskDetailsQuery}
+          loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
+          emptyFallback={
+            <View className="h-[250] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+              <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+                No data
+              </Text>
+            </View>
+          }
+        >
+          {(data) => (
+            <View className="absolute right-5 bottom-7 flex-row gap-2 items-end justify-center">
+              <TouchableOpacity
+                className={`flex items-center justify-center size-10 p-2 rounded-full bg-primary-500`}
+                onPress={() => {
+                  // setQuickAddOpen(true);
+                  quickAddRef.current?.open();
+                }}
+              >
+                <FontAwesome5
+                  name="fire"
+                  size={18}
+                  className="text-neutral-50" /* color={theme.light} */
+                  // color={
+                  //   resolvedTheme === "light"
+                  //     ? colors.neutral[900]
+                  //     : colors.neutral[50]
+                  // }
+                  color={appColors.secondary[500]}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className={`p-4 rounded-full bg-primary-500`}
+                onPress={() => {
+                  router.push({
+                    pathname: "/add-task",
+                    params: { project: JSON.stringify(data) },
+                  });
+                }}
+              >
+                <Entypo
+                  name="add-to-list"
+                  size={24}
+                  className="text-neutral-50" /* color={theme.light} */
+                  color={
+                    resolvedTheme === "light"
+                      ? colors.neutral[900]
+                      : colors.neutral[50]
+                  }
+                  // color={appColors.secondary[300]}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+        </QueryState>
       </View>
     </Screen>
   );

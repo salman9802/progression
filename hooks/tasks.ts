@@ -5,7 +5,7 @@ import {
   markTaskCompleted,
   startTimer,
   stopTimer,
-  updateTask
+  updateTask,
 } from "@/db/queries/tasks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { projectKeys } from "./projects";
@@ -55,7 +55,11 @@ export function useMarkTaskCompleted() {
     mutationKey: tasksKeys.markTaskCompleted,
     mutationFn: markTaskCompleted,
     onSuccess: () => {
-      [projectKeys.details()[0], tasksKeys.byProjectId()[0]].map((key) => {
+      [
+        projectKeys.details()[0],
+        tasksKeys.byProjectId()[0],
+        tasksKeys.byTaskId()[0],
+      ].map((key) => {
         queryClient.invalidateQueries({
           queryKey: [key],
         });
@@ -70,7 +74,11 @@ export function useUpdateTask() {
     mutationKey: tasksKeys.updateTask,
     mutationFn: updateTask,
     onSuccess: () => {
-      [projectKeys.details()[0], tasksKeys.byProjectId()[0]].map((key) => {
+      [
+        projectKeys.details()[0],
+        tasksKeys.byProjectId()[0],
+        tasksKeys.byTaskId()[0],
+      ].map((key) => {
         queryClient.invalidateQueries({
           queryKey: [key],
         });
