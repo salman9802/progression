@@ -34,6 +34,7 @@ export const toastConfig = {
       }}
       contentContainerStyle={{ paddingHorizontal: 0 }}
       text1Style={{ paddingHorizontal: 24 }}
+      text2Style={{ paddingHorizontal: 24 }}
       renderLeadingIcon={() => null}
       renderTrailingIcon={() => null}
       renderContent={() => (

@@ -8,7 +8,7 @@ import { TTask, TTaskDetails } from "../schema";
 //NOTE: Improve this query by computing separate estimations for itself and children (show in UI as well)
 export function getTasksByProjectId(projectId: string): TTaskDetails[] {
   const row = getDb().getAllSync<TTaskDetails>(
-    `SELECT * FROM tasks WHERE project_id = ? ORDER BY position ASC, created_at ASC`,
+    `SELECT * FROM tasks WHERE project_id = ? AND parent_id IS NULL ORDER BY position ASC, created_at ASC`,
     [projectId],
   );
   return row.map((r) => ({

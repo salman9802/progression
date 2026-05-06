@@ -17,7 +17,7 @@ import { projectKeys, useProjectDetails, useProjects } from "@/hooks/projects";
 import { tasksKeys, useTasksByProjectId, useUpdateTask } from "@/hooks/tasks";
 import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
@@ -191,8 +191,6 @@ export default function ProjectsScreen() {
   const editTask: SubmitHandler<TTaskDetails> = (editingTask) => {
     if (editingTask == undefined) return;
 
-    const db = getDb();
-
     try {
       // remove computed values
       // delete editingTask.estimated_minutes;
@@ -334,6 +332,38 @@ export default function ProjectsScreen() {
           </Text>
         );
       }
+    }
+  };
+
+  // ------------------------- Delete Task -------------------------
+  const deleteTask = (task: Partial<TTaskDetails> | null) => {
+    if (task == null || task.id == null) return;
+
+    const db = getDb();
+
+    try {
+      const now = Date.now();
+      db.runSync("DELETE FROM tasks where id = ?", [task.id]);
+      Toast.show({
+        type: "success",
+        text1: "Task deleted",
+        text2: "Subsequent subtasks are deleted as well",
+      });
+      // router.push("/");
+      [(projectKeys.details()[0], tasksKeys.byProjectId()[0])].map((key) => {
+        queryClient.invalidateQueries({
+          queryKey: [key],
+        });
+      });
+      setEditingTask(null);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to delete task",
+        text2: JSON.stringify(error),
+      });
+      console.error("Failed to add task");
+      console.error(error);
     }
   };
 
@@ -744,7 +774,7 @@ export default function ProjectsScreen() {
         </Pressable>
       </Modal>
 
-      {/* ------------------------- Editing Modal -------------------------*/}
+      {/* ------------------------- Task Editing Modal -------------------------*/}
       <Modal
         visible={editingTask !== null}
         transparent
@@ -789,9 +819,18 @@ export default function ProjectsScreen() {
                 keyboardDismissMode="interactive"
                 showsVerticalScrollIndicator={false}
               >
-                <Text className="font-bold text-primary-500 text-xl">
-                  Edit Task
-                </Text>
+                <View className="w-full flex-row justify-start items-center gap-4">
+                  <Pressable onPress={() => deleteTask(editingTask)}>
+                    <AntDesign
+                      name="delete"
+                      size={18}
+                      color={colors.red[500]}
+                    />
+                  </Pressable>
+                  <Text className="font-bold text-primary-500 text-xl">
+                    Edit Task
+                  </Text>
+                </View>
                 {/* Name */}
                 <Controller
                   control={control}
