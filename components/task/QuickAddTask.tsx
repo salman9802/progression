@@ -50,12 +50,15 @@ import React, {
 import {
   Animated,
   Dimensions,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   Text,
   TextInputProps,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CTextInput from "../CTextInput";
 
 type QuickAddTaskProps = TextInputProps;
@@ -67,6 +70,7 @@ export type QuickAddTaskRef = {
 
 const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
   ({ ...inputProps }, ref) => {
+    const insets = useSafeAreaInsets();
     const sheetRef = useRef<BottomSheetModal>(null);
 
     const snapPoints = ["25%", "50%"];
@@ -126,39 +130,50 @@ const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
         //  animationType="slide"
         animationType="none"
       >
-        <View
-          style={{ paddingHorizontal: 8, flex: 1, justifyContent: "flex-end" }}
+        {/* `Modal`'s do not avoid keyboard. Wrapping it's children in a <KeyboardAvoidingView />` component. */}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          {/* 👇 BACKDROP (tap outside to close) */}
-          <Pressable
-            // className="backdrop-blur-2xl"
-            className="absolute inset-0"
-            style={{ flex: 1 }}
-            onPress={() => setOpen(false)}
-          >
-            <BlurView
-              intensity={50}
-              tint="dark" // "light" | "dark" | "default"
-              style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.3)" }}
-            />
-          </Pressable>
-          <Animated.View
+          <View
             style={{
-              transform: [{ translateY }],
-              backgroundColor: "white",
-              padding: 16,
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
+              paddingHorizontal: 8,
+              flex: 1,
+              justifyContent: "flex-end",
             }}
-            className="relative"
           >
-            <CTextInput {...inputProps} />
-            <Text className="absolute right-6 top-1/2 text-mono text-sm px-2 py-1 rounded-md bg-primary-300/10 text-primary-300">
-              <Text>Enter</Text>
-              <AntDesign name="enter" size={12} color={colors.primary[500]} />
-            </Text>
-          </Animated.View>
-        </View>
+            {/* 👇 BACKDROP (tap outside to close) */}
+            <Pressable
+              // className="backdrop-blur-2xl"
+              className="absolute inset-0"
+              style={{ flex: 1 }}
+              onPress={() => setOpen(false)}
+            >
+              <BlurView
+                intensity={50}
+                tint="dark" // "light" | "dark" | "default"
+                style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.3)" }}
+              />
+            </Pressable>
+            <Animated.View
+              style={{
+                transform: [{ translateY }],
+                backgroundColor: "white",
+                padding: 16,
+                paddingBottom: 16 + insets.bottom,
+                borderTopLeftRadius: 16,
+                borderTopRightRadius: 16,
+              }}
+              className="relative"
+            >
+              <CTextInput {...inputProps} />
+              <Text className="absolute right-6 top-1/2 text-mono text-sm px-2 py-1 rounded-md bg-primary-300/10 text-primary-300">
+                <Text>Enter</Text>
+                <AntDesign name="enter" size={12} color={colors.primary[500]} />
+              </Text>
+            </Animated.View>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
     );
   },

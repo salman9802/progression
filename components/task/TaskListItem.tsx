@@ -16,9 +16,16 @@ type TaskItemProps = {
   task: TTaskDetails;
   onQuickEdit: () => any;
   onEdit: () => any;
+
+  isLast?: boolean;
 };
 
-const TaskListItem = ({ task, onQuickEdit, onEdit }: TaskItemProps) => {
+const TaskListItem = ({
+  task,
+  onQuickEdit,
+  onEdit,
+  isLast = false,
+}: TaskItemProps) => {
   const logger = React.useMemo(() => new Logger("TaskItem"), []);
 
   const { resolvedTheme } = useTheme();
@@ -58,6 +65,8 @@ const TaskListItem = ({ task, onQuickEdit, onEdit }: TaskItemProps) => {
 
   const markTaskCompletedMutation = useMarkTaskCompleted();
 
+  logger.log({ isLast });
+
   return (
     <>
       <Pressable
@@ -73,7 +82,7 @@ const TaskListItem = ({ task, onQuickEdit, onEdit }: TaskItemProps) => {
           // setIsEditing(true);
           onEdit();
         }}
-        className="flex-row items-start min-h-[50]"
+        className={`flex-row items-start ${!isLast && "min-h-[50]"}`}
       >
         {/* Left Side (line + circle) */}
         <View className="relative w-[40] items-center mt-[4]">
@@ -133,7 +142,9 @@ const TaskListItem = ({ task, onQuickEdit, onEdit }: TaskItemProps) => {
         </View>
 
         {/* Right Side */}
-        <View className="flex-1 flex-row items-start justify-between pb-[20] px-4">
+        <View
+          className={`flex-1 flex-row items-start justify-between px-4 ${!isLast && "pb-[20]"}`}
+        >
           <View className="pe-2">
             {activeTask && activeTask.id === task.id ? (
               <Pressable

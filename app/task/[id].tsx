@@ -331,11 +331,12 @@ const TaskScreen = () => {
         <FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <TaskListItem
               task={item}
               onQuickEdit={() => setQuickEditingTask(item)}
               onEdit={() => setEditingTask(item)}
+              isLast={index === tasks.length - 1}
             />
           )}
           contentContainerStyle={{
