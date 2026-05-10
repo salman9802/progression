@@ -1,15 +1,23 @@
 import { useTheme } from "@/providers/ThemeProvider";
 import * as Application from "expo-application";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function AboutScreen() {
   const { theme, updatePreference } = useTheme();
 
   return (
     <View className="flex-1 items-center justify-center py-6 px-3 w-full bg-neutral-100 dark:bg-neutral-900">
-      <Text className="text-4xl font-bold text-neutral-800 dark:text-neutral-300 mb-4">
-        About Screen
-      </Text>
+      {/* <Text className="text-4xl font-bold text-neutral-800 dark:text-neutral-300 mb-4"> About Screen
+      </Text> */}
+      <Image
+        source={require("@/assets/images/icon.png")}
+        // style={{
+        //   width: 96,
+        //   height: 96,
+        //   borderRadius: 20,
+        // }}
+        className="rounded-lg mx-auto size-52 mb-8"
+      />
       <View className=" flex-1 flex flex-col gap-2 self-start w-full">
         <Text className="text-neutral-800 dark:text-neutral-300">
           <Text className="font-bold text-primary-500">Developed by:</Text>{" "}
