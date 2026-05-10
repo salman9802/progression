@@ -31,6 +31,11 @@ const TaskListItem = ({
   const { resolvedTheme } = useTheme();
   const { activeTask, startTimer, stopTimer } = useTimer();
 
+  // ------------------------- Elapsed Time (calculation) -------------------------
+  // const [now, setNow] = React.useState(() => Date.now());
+  // let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
+  // elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
+
   const [isEditing, setIsEditing] = React.useState(false);
 
   // const panResponderRef = React.useRef(
@@ -66,6 +71,9 @@ const TaskListItem = ({
   const markTaskCompletedMutation = useMarkTaskCompleted();
 
   // logger.log({ task });
+  // logger.log({
+  //   height: Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100),
+  // });
 
   return (
     <>
@@ -88,6 +96,14 @@ const TaskListItem = ({
         <View className="relative w-[40] items-center mt-[4]">
           {/* Top Line */}
           <View className="absolute z-0 top-0 w-[2] h-full bg-neutral-200 dark:bg-neutral-600" />
+
+          {/* Elapsed Progress Line */}
+          <View
+            style={{
+              height: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
+            }}
+            className={`absolute z-10 top-0 w-[2] bg-primary-500`}
+          />
 
           {/* Circle */}
           {/* <View className="size-[16] rounded-md bg-primary-500" /> */}
@@ -173,6 +189,7 @@ const TaskListItem = ({
             )}
           </View>
 
+          {/* Task name and computation details */}
           <View className="flex-1">
             <Text
               className={`text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
@@ -213,6 +230,8 @@ const TaskListItem = ({
             </Text>
           </Pressable>
         </View>
+
+        {/* Active Task Estimate Progress Line */}
       </Pressable>
     </>
   );
