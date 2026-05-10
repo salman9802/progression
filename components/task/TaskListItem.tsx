@@ -26,7 +26,7 @@ const TaskListItem = ({
   onEdit,
   isLast = false,
 }: TaskItemProps) => {
-  const logger = React.useMemo(() => new Logger("TaskItem"), []);
+  const logger = React.useMemo(() => new Logger("TaskListItem"), []);
 
   const { resolvedTheme } = useTheme();
   const { activeTask, startTimer, stopTimer } = useTimer();
@@ -65,7 +65,7 @@ const TaskListItem = ({
 
   const markTaskCompletedMutation = useMarkTaskCompleted();
 
-  logger.log({ isLast });
+  // logger.log({ task });
 
   return (
     <>
@@ -173,11 +173,33 @@ const TaskListItem = ({
             )}
           </View>
 
-          <Text
-            className={`flex-1 text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
-          >
-            {task.name}
-          </Text>
+          <View className="flex-1">
+            <Text
+              className={`text-neutral-700 dark:text-neutral-200 ${task.completed === 1 && "line-through"}`}
+            >
+              {task.name}
+            </Text>
+            <Text className="text-xs">
+              Children Estimation:{" "}
+              <Text className="font-bold">
+                {task.children_estimated_minutes}m
+              </Text>
+            </Text>
+            <Text className="text-xs">
+              Direct Children:{" "}
+              <Text className="font-bold">
+                {task.completed_direct_children_count ?? 0}/
+                {task.direct_children_count}
+              </Text>
+            </Text>
+            <Text className="text-xs">
+              Total Descendants:{" "}
+              <Text className="font-bold">
+                {task.completed_descendant_count ?? 0}/
+                {task.total_descendant_count}
+              </Text>
+            </Text>
+          </View>
 
           <Pressable onPress={() => onQuickEdit()}>
             <Text

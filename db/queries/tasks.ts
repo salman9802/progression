@@ -7,14 +7,53 @@ import { TTask, TTaskDetails } from "../schema";
 // NOTE: Improve this query computing subtree
 //NOTE: Improve this query by computing separate estimations for itself and children (show in UI as well)
 export function getTasksByProjectId(projectId: string): TTaskDetails[] {
-  const row = getDb().getAllSync<TTaskDetails>(
-    `SELECT * FROM tasks WHERE project_id = ? AND parent_id IS NULL ORDER BY position ASC, created_at ASC`,
+  // const row = getDb().getAllSync<TTaskDetails>(
+  //   `SELECT * FROM tasks WHERE project_id = ? AND parent_id IS NULL ORDER BY position ASC, created_at ASC`,
+  //   [projectId],
+  // );
+  const rows = getDb().getAllSync<TTaskDetails>(
+    `
+    SELECT
+      t.*,
+      (SELECT COUNT(*) FROM tasks child WHERE child.parent_id = t.id) AS direct_children_count,
+      (SELECT COUNT(*)
+        FROM tasks child
+        WHERE child.parent_id = t.id
+        AND child.completed = 1) AS completed_direct_children_count,
+      (WITH RECURSIVE descendants AS (
+        SELECT id FROM tasks WHERE parent_id = t.id
+        UNION ALL
+        SELECT child.id FROM tasks child
+        INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COUNT(*) FROM descendants) AS total_descendant_count,
+        (WITH RECURSIVE descendants AS (
+          SELECT id, completed FROM tasks WHERE parent_id = t.id
+          UNION ALL
+          SELECT child.id, child.completed FROM tasks child
+          INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COUNT(*) FROM descendants WHERE completed = 1) AS completed_descendant_count,
+        (WITH RECURSIVE descendants AS (
+          SELECT id, estimated_seconds FROM tasks WHERE parent_id = t.id
+          UNION ALL
+          SELECT child.id, child.estimated_seconds FROM tasks child
+          INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COALESCE(SUM(estimated_seconds), 0) FROM descendants) AS children_estimated_seconds
+      FROM tasks t
+      WHERE t.project_id = ?
+      ORDER BY t.position ASC, t.created_at ASC
+    `,
     [projectId],
   );
-  return row.map((r) => ({
+  return rows.map((r) => ({
     ...r,
     estimated_minutes: Math.floor(r.estimated_seconds / 60),
     elapsed_minutes: r.elapsed_seconds ? Math.floor(r.elapsed_seconds / 60) : 0,
+    children_estimated_minutes: r.children_estimated_seconds
+      ? Math.floor(r.children_estimated_seconds / 60)
+      : 0,
   }));
 }
 
@@ -55,14 +94,59 @@ export async function getTaskDetailsByTaskId(
 
 //NOTE: Improve this query by computing separate estimations for itself and children (show in UI as well)
 export function getTasksByTaskId(taskId: string): TTaskDetails[] {
+  // const rows = getDb().getAllSync<TTaskDetails>(
+  //   `SELECT * FROM tasks WHERE parent_id = ? ORDER BY position ASC, created_at ASC`,
+  //   [taskId],
+  // );
   const rows = getDb().getAllSync<TTaskDetails>(
-    `SELECT * FROM tasks WHERE parent_id = ? ORDER BY position ASC, created_at ASC`,
+    `
+    SELECT
+      t.*,
+      (SELECT COUNT(*) FROM tasks child WHERE child.parent_id = t.id) AS direct_children_count,
+      (SELECT COUNT(*)
+        FROM tasks child
+        WHERE child.parent_id = t.id
+        AND child.completed = 1) AS completed_direct_children_count,
+      (WITH RECURSIVE descendants AS (
+        SELECT id FROM tasks WHERE parent_id = t.id
+        UNION ALL
+        SELECT child.id FROM tasks child
+        INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COUNT(*) FROM descendants) AS total_descendant_count,
+        (WITH RECURSIVE descendants AS (
+          SELECT id, completed FROM tasks WHERE parent_id = t.id
+          UNION ALL
+          SELECT child.id, child.completed FROM tasks child
+          INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COUNT(*) FROM descendants WHERE completed = 1) AS completed_descendant_count,
+        (WITH RECURSIVE descendants AS (
+          SELECT id, estimated_seconds FROM tasks WHERE parent_id = t.id
+          UNION ALL
+          SELECT child.id, child.estimated_seconds FROM tasks child
+          INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COALESCE(SUM(estimated_seconds), 0) FROM descendants) AS children_estimated_seconds
+      FROM tasks t
+      WHERE t.parent_id = ?
+      ORDER BY t.position ASC, t.created_at ASC
+    `,
     [taskId],
   );
   return rows.map((r) => ({
     ...r,
-    estimated_minutes: Math.floor(r.estimated_seconds / 60),
-    elapsed_minutes: r.elapsed_seconds ? Math.floor(r.elapsed_seconds / 60) : 0,
+    estimated_minutes: r.estimated_seconds
+      ? Math.floor(r.estimated_seconds / 60)
+      : 0,
+    elapsed_minutes: r.elapsed_seconds
+      ? r.elapsed_seconds
+        ? Math.floor(r.elapsed_seconds / 60)
+        : 0
+      : 0,
+    children_estimated_minutes: r.children_estimated_seconds
+      ? Math.floor(r.children_estimated_seconds / 60)
+      : 0,
   }));
 }
 

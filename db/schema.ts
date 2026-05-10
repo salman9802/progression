@@ -38,8 +38,6 @@ export type TTask = {
 };
 
 export type TTaskDetails = TTask & {
-  subtask_count: number;
-  completed_subtask_count: number;
   estimated_seconds: number;
   estimated_minutes: number;
   elapsed_seconds: number;
@@ -50,4 +48,16 @@ export type TTaskDetails = TTask & {
   // convenience — computed from the above
   total_estimated_minutes: number;
   total_elapsed_minutes: number;
+
+  // details
+  subtask_count: number;
+  completed_subtask_count: number;
+
+  // list item
+  direct_children_count: number;
+  total_descendant_count: number;
+  children_estimated_seconds: number;
+  children_estimated_minutes: number;
+  completed_direct_children_count: number;
+  completed_descendant_count: number;
 };
