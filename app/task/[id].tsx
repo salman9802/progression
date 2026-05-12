@@ -201,8 +201,24 @@ const TaskScreen = () => {
       // remove computed values
       // delete editingTask.estimated_minutes;
       // editingTask.elapsed_minutes = undefined;
-      const { estimated_minutes, elapsed_minutes, ...editingPayload } =
-        editingTask;
+      // NOTE: ignore fields not having DB columns
+      const {
+        estimated_minutes,
+        elapsed_minutes,
+        total_estimated_seconds,
+        total_estimated_minutes,
+        total_elapsed_seconds,
+        total_elapsed_minutes,
+        subtask_count,
+        completed_subtask_count,
+        direct_children_count,
+        total_descendant_count,
+        children_estimated_seconds,
+        children_estimated_minutes,
+        completed_direct_children_count,
+        completed_descendant_count,
+        ...editingPayload
+      } = editingTask;
 
       console.log("editingPayload", editingPayload);
 
