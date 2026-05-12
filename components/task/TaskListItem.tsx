@@ -97,10 +97,10 @@ const TaskListItem = ({
           {/* Top Line */}
           <View className="absolute z-0 top-0 w-[2] h-full bg-neutral-200 dark:bg-neutral-600" />
 
-          {/* Elapsed Progress Line */}
+          {/* Tasks Completed Progress Line */}
           <View
             style={{
-              height: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
+              height: `${Math.floor((task.completed_descendant_count / task.total_descendant_count) * 100)}%`,
             }}
             className={`absolute z-10 top-0 w-[2] bg-primary-500`}
           />
