@@ -347,6 +347,14 @@ const TaskScreen = () => {
         <FlatList
           data={tasks}
           keyExtractor={(item) => item.id}
+          ListEmptyComponent={
+            <View className="flex-1 my-4 w-full rounded-md justify-center items-center">
+              {/*  bg-neutral-50 dark:bg-neutral-800*/}
+              <Text className="italic text-xl text-neutral-600 dark:text-neutral-500">
+                No Tasks.
+              </Text>
+            </View>
+          }
           renderItem={({ item, index }) => (
             <TaskListItem
               task={item}
