@@ -35,6 +35,14 @@ const TaskListItem = ({
   const [now, setNow] = React.useState(() => Date.now());
   let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
   elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
+  // Effect to update tick
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -77,9 +85,13 @@ const TaskListItem = ({
   // logger.log(
   //   activeTask &&
   //     activeTask.id === task.id && {
-  //       elapsed_seconds: task.elapsed_seconds,
-  //       estimated_seconds: task.estimated_seconds,
-  //       progress: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
+  //       // elapsed_seconds: task.elapsed_seconds,
+  //       // estimated_seconds: task.estimated_seconds,
+  //       total_elapsed_seconds: task.total_elapsed_seconds,
+  //       total_estimated_seconds: task.total_estimated_seconds,
+  //       // progress: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
+  //       // progress: `${100 - Math.floor(((task.elapsed_seconds + elapsedSeconds) / task.estimated_seconds) * 100)}%`,
+  //       progress: `${100 - Math.floor(((task.total_elapsed_seconds + elapsedSeconds) / task.total_estimated_seconds) * 100)}%`,
   //     },
   // );
 
@@ -227,7 +239,7 @@ const TaskListItem = ({
           </View>
 
           <Pressable onPress={() => onQuickEdit()}>
-            <Text
+            {/* <Text
               className={`font-mono text-sm text-neutral-600 dark:text-neutral-400 ${task.completed === 1 && "line-through"}`}
             >
               {task.elapsed_minutes}m
@@ -235,17 +247,26 @@ const TaskListItem = ({
               {" / "}
               {task.estimated_minutes}m
               <Text className="text-xs">({task.estimated_seconds}s)</Text>
+            </Text> */}
+            <Text
+              className={`font-mono text-sm text-neutral-600 dark:text-neutral-400 ${task.completed === 1 && "line-through"}`}
+            >
+              {Math.floor(task.total_elapsed_seconds / 60)}m
+              <Text className="text-xs">({task.total_elapsed_seconds}s)</Text>
+              {" / "}
+              {Math.floor(task.total_estimated_seconds / 60)}m
+              <Text className="text-xs">({task.total_estimated_seconds}s)</Text>
             </Text>
           </Pressable>
         </View>
 
         {/* Active Task Estimate Progress Line */}
-        {/* TODO: after proper calc for elapsed and estimated, change here */}
         {activeTask && activeTask.id === task.id && (
           <View
             style={{
               // width: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
-              right: `${100 - Math.floor(((task.elapsed_seconds + elapsedSeconds) / task.estimated_seconds) * 100)}%`,
+              // right: `${100 - Math.floor(((task.elapsed_seconds + elapsedSeconds) / task.estimated_seconds) * 100)}%`,
+              right: `${100 - Math.floor(((task.total_elapsed_seconds + elapsedSeconds) / task.total_estimated_seconds) * 100)}%`,
             }}
             className="h-0.5 absolute left-0 bottom-0 bg-primary-500"
           />

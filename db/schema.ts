@@ -60,4 +60,6 @@ export type TTaskDetails = TTask & {
   children_estimated_minutes: number;
   completed_direct_children_count: number;
   completed_descendant_count: number;
+  children_elapsed_seconds: number;
+  children_elapsed_minutes: number;
 };

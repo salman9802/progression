@@ -40,7 +40,14 @@ export function getTasksByProjectId(projectId: string): TTaskDetails[] {
           SELECT child.id, child.estimated_seconds FROM tasks child
           INNER JOIN descendants d ON child.parent_id = d.id
         )
-        SELECT COALESCE(SUM(estimated_seconds), 0) FROM descendants) AS children_estimated_seconds
+        SELECT COALESCE(SUM(estimated_seconds), 0) FROM descendants) AS children_estimated_seconds,
+        (WITH RECURSIVE descendants AS (
+          SELECT id, elapsed_seconds FROM tasks WHERE parent_id = t.id
+          UNION ALL
+          SELECT child.id, child.elapsed_seconds FROM tasks child
+          INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COALESCE(SUM(elapsed_seconds), 0) FROM descendants) AS children_elapsed_seconds
       FROM tasks t
       WHERE t.project_id = ?
       ORDER BY t.position ASC, t.created_at ASC
@@ -54,6 +61,17 @@ export function getTasksByProjectId(projectId: string): TTaskDetails[] {
     children_estimated_minutes: r.children_estimated_seconds
       ? Math.floor(r.children_estimated_seconds / 60)
       : 0,
+    children_elapsed_minutes: r.children_elapsed_seconds
+      ? Math.floor(r.children_elapsed_seconds / 60)
+      : 0,
+    total_elapsed_seconds:
+      r.children_elapsed_seconds != null && r.elapsed_seconds != null
+        ? r.children_elapsed_seconds + r.elapsed_seconds
+        : 0,
+    total_estimated_seconds:
+      r.children_estimated_seconds != null && r.estimated_seconds != null
+        ? r.children_estimated_seconds + r.estimated_seconds
+        : 0,
   }));
 }
 
@@ -127,7 +145,14 @@ export function getTasksByTaskId(taskId: string): TTaskDetails[] {
           SELECT child.id, child.estimated_seconds FROM tasks child
           INNER JOIN descendants d ON child.parent_id = d.id
         )
-        SELECT COALESCE(SUM(estimated_seconds), 0) FROM descendants) AS children_estimated_seconds
+        SELECT COALESCE(SUM(estimated_seconds), 0) FROM descendants) AS children_estimated_seconds,
+        (WITH RECURSIVE descendants AS (
+          SELECT id, elapsed_seconds FROM tasks WHERE parent_id = t.id
+          UNION ALL
+          SELECT child.id, child.elapsed_seconds FROM tasks child
+          INNER JOIN descendants d ON child.parent_id = d.id
+        )
+        SELECT COALESCE(SUM(elapsed_seconds), 0) FROM descendants) AS children_elapsed_seconds
       FROM tasks t
       WHERE t.parent_id = ?
       ORDER BY t.position ASC, t.created_at ASC
@@ -147,6 +172,17 @@ export function getTasksByTaskId(taskId: string): TTaskDetails[] {
     children_estimated_minutes: r.children_estimated_seconds
       ? Math.floor(r.children_estimated_seconds / 60)
       : 0,
+    children_elapsed_minutes: r.children_elapsed_seconds
+      ? Math.floor(r.children_elapsed_seconds / 60)
+      : 0,
+    total_elapsed_seconds:
+      r.children_elapsed_seconds != null && r.elapsed_seconds != null
+        ? r.children_elapsed_seconds + r.elapsed_seconds
+        : 0,
+    total_estimated_seconds:
+      r.children_estimated_seconds != null && r.estimated_seconds != null
+        ? r.children_estimated_seconds + r.estimated_seconds
+        : 0,
   }));
 }
 
