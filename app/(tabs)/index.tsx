@@ -395,6 +395,13 @@ export default function ProjectsScreen() {
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id}
+        ListEmptyComponent={
+          <View className="flex-1 my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+            <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+              No data
+            </Text>
+          </View>
+        }
         renderItem={({ item, index }) => (
           <TaskListItem
             task={item}
@@ -405,11 +412,12 @@ export default function ProjectsScreen() {
         )}
         contentContainerStyle={{
           paddingBottom: 18, // space for input
+          flexGrow: 1,
         }}
         ListHeaderComponent={
           <>
             <View className="items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
-              <View className="mb-2 flex-row px-6 items-center justify-around w-full">
+              <View className="mb-2 flex-row items-center justify-between w-full">
                 {/* Horizontal project list */}
                 <QueryState
                   query={projectsQuery}
@@ -417,9 +425,11 @@ export default function ProjectsScreen() {
                     <Skeleton className="my-4 h-[24] w-full mx-3 rounded-md" />
                   }
                   emptyFallback={
-                    <Text className="text-neutral-600 items-center self-start dark:text-neutral-500">
-                      No projects. Press + to add one
-                    </Text>
+                    <View className="grow self-stretch flex items-center">
+                      <Text className="text-neutral-600 items-center dark:text-neutral-500">
+                        No projects. Press + to add one
+                      </Text>
+                    </View>
                   }
                 >
                   {(data) => (
@@ -449,7 +459,7 @@ export default function ProjectsScreen() {
 
                 {/* Add Project */}
                 <TouchableOpacity
-                  className="mr-4 pb-4"
+                  className="pb-4"
                   onPress={() => {
                     router.push("/add-project");
                   }}
@@ -466,13 +476,14 @@ export default function ProjectsScreen() {
               <QueryState
                 query={projectDetailsQuery}
                 loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
-                emptyFallback={
-                  <View className="h-[150] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
-                    <Text className="text-xl text-neutral-600 dark:text-neutral-500">
-                      No data
-                    </Text>
-                  </View>
-                }
+                // emptyFallback={
+                //   <View className="my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+                //     <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+                //       No data
+                //     </Text>
+                //   </View>
+                // }
+                emptyFallback={null}
               >
                 {(data) => (
                   <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
@@ -1028,13 +1039,14 @@ export default function ProjectsScreen() {
       <QueryState
         query={projectDetailsQuery}
         loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
-        emptyFallback={
-          <View className="h-[250] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
-            <Text className="text-xl text-neutral-600 dark:text-neutral-500">
-              No data
-            </Text>
-          </View>
-        }
+        // emptyFallback={
+        //   <View className="h-[250] border border-green-500 my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+        //     <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+        //       No data
+        //     </Text>
+        //   </View>
+        // }
+        emptyFallback={null}
       >
         {(data) => (
           <View className="absolute right-5 bottom-7 flex-row gap-2 items-end justify-center">
