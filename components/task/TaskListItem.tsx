@@ -29,12 +29,12 @@ const TaskListItem = ({
   const logger = React.useMemo(() => new Logger("TaskListItem"), []);
 
   const { resolvedTheme } = useTheme();
-  const { activeTask, startTimer, stopTimer } = useTimer();
+  const { activeTask, startTimer, stopTimer, startTime } = useTimer();
 
   // ------------------------- Elapsed Time (calculation) -------------------------
-  // const [now, setNow] = React.useState(() => Date.now());
-  // let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
-  // elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
+  const [now, setNow] = React.useState(() => Date.now());
+  let elapsedSeconds = startTime ? Math.floor((now - startTime) / 1000) : 0;
+  elapsedSeconds = elapsedSeconds < 0 ? 0 : elapsedSeconds;
 
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -74,6 +74,14 @@ const TaskListItem = ({
   // logger.log({
   //   height: Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100),
   // });
+  // logger.log(
+  //   activeTask &&
+  //     activeTask.id === task.id && {
+  //       elapsed_seconds: task.elapsed_seconds,
+  //       estimated_seconds: task.estimated_seconds,
+  //       progress: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
+  //     },
+  // );
 
   return (
     <>
@@ -90,7 +98,7 @@ const TaskListItem = ({
           // setIsEditing(true);
           onEdit();
         }}
-        className={`flex-row items-start ${!isLast && "min-h-[50]"}`}
+        className={`relative flex-row items-start ${!isLast && "min-h-[50]"}`}
       >
         {/* Left Side (line + circle) */}
         <View className="relative w-[40] items-center mt-[4]">
@@ -232,6 +240,16 @@ const TaskListItem = ({
         </View>
 
         {/* Active Task Estimate Progress Line */}
+        {/* TODO: after proper calc for elapsed and estimated, change here */}
+        {activeTask && activeTask.id === task.id && (
+          <View
+            style={{
+              // width: `${Math.floor((task.elapsed_seconds / task.estimated_seconds) * 100)}%`,
+              right: `${100 - Math.floor(((task.elapsed_seconds + elapsedSeconds) / task.estimated_seconds) * 100)}%`,
+            }}
+            className="h-0.5 absolute left-0 bottom-0 bg-primary-500"
+          />
+        )}
       </Pressable>
     </>
   );
