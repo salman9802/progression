@@ -396,9 +396,10 @@ export default function ProjectsScreen() {
         data={tasks}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <View className="flex-1 my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
-            <Text className="text-xl text-neutral-600 dark:text-neutral-500">
-              No data
+          <View className="flex-1 my-4 w-full rounded-md justify-center items-center">
+            {/*  bg-neutral-50 dark:bg-neutral-800*/}
+            <Text className="italic text-xl text-neutral-600 dark:text-neutral-500">
+              No Tasks.
             </Text>
           </View>
         }
@@ -415,120 +416,115 @@ export default function ProjectsScreen() {
           flexGrow: 1,
         }}
         ListHeaderComponent={
-          <>
-            <View className="items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
-              <View className="mb-2 flex-row items-center justify-between w-full">
-                {/* Horizontal project list */}
-                <QueryState
-                  query={projectsQuery}
-                  loadingFallback={
-                    <Skeleton className="my-4 h-[24] w-full mx-3 rounded-md" />
-                  }
-                  emptyFallback={
-                    <View className="grow self-stretch flex items-center">
-                      <Text className="text-neutral-600 items-center dark:text-neutral-500">
-                        No projects. Press + to add one
-                      </Text>
-                    </View>
-                  }
-                >
-                  {(data) => (
-                    <FlatList
-                      className="flex-grow-0 flex-shrink-0 pb-4"
-                      contentContainerStyle={{
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                      data={data}
-                      renderItem={({ item }) => (
-                        <Pressable
-                          onPress={() => setCurrentProjectId(item.id)}
-                          className={`px-2 mx-2 ${currentProjectId && currentProjectId === item.id ? "border-b-2 border-primary-500" : ""}`}
-                        >
-                          <Text
-                            className={`${currentProjectId && currentProjectId === item.id ? "font-semibold text-primary-500" : "text-neutral-600 dark:text-neutral-500"}`}
-                          >
-                            {item.name}
-                          </Text>
-                        </Pressable>
-                      )}
-                      horizontal={true}
-                    />
-                  )}
-                </QueryState>
-
-                {/* Add Project */}
-                <TouchableOpacity
-                  className="pb-4"
-                  onPress={() => {
-                    router.push("/add-project");
-                  }}
-                >
-                  <Ionicons
-                    name="add"
-                    size={24}
-                    color={appColors.primary[500]}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Project overview card */}
+          <View className="items-center justify-start px-4 bg-neutral-100 dark:bg-neutral-900">
+            <View className="mb-2 flex-row items-center justify-between w-full">
+              {/* Horizontal project list */}
               <QueryState
-                query={projectDetailsQuery}
-                loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
-                // emptyFallback={
-                //   <View className="my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
-                //     <Text className="text-xl text-neutral-600 dark:text-neutral-500">
-                //       No data
-                //     </Text>
-                //   </View>
-                // }
-                emptyFallback={null}
+                query={projectsQuery}
+                loadingFallback={
+                  <Skeleton className="my-4 h-[24] w-full mx-3 rounded-md" />
+                }
+                emptyFallback={
+                  <View className="grow self-stretch flex items-center">
+                    <Text className="text-neutral-600 items-center dark:text-neutral-500">
+                      No projects. Press + to add one
+                    </Text>
+                  </View>
+                }
               >
                 {(data) => (
-                  <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
-                    {/* Project name */}
-                    <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
-                      {data?.name}
-                    </Text>
-                    {data?.description && (
-                      <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
-                        {data?.description}
-                      </Text>
-                    )}
-
-                    {/* Task completion */}
-                    <View className="gap-2">
-                      {/* Task completion progress bar */}
-                      <View
-                        className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+                  <FlatList
+                    className="flex-grow-0 flex-shrink-0 pb-4"
+                    contentContainerStyle={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    data={data}
+                    renderItem={({ item }) => (
+                      <Pressable
+                        onPress={() => setCurrentProjectId(item.id)}
+                        className={`px-2 mx-2 ${currentProjectId && currentProjectId === item.id ? "border-b-2 border-primary-500" : ""}`}
                       >
-                        <View
-                          className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
-                          style={{
-                            width: data
-                              ? `${Math.floor((data?.completed_task_count / data?.task_count) * 100)}%`
-                              : "0%",
-                          }}
-                        />
-                      </View>
-
-                      <Text className="font-mono flex-row gap-2 text-sm ml-auto text-neutral-600 dark:text-neutral-200">
-                        <Text className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
-                          {data?.completed_task_count}
+                        <Text
+                          className={`${currentProjectId && currentProjectId === item.id ? "font-semibold text-primary-500" : "text-neutral-600 dark:text-neutral-500"}`}
+                        >
+                          {item.name}
                         </Text>
-                        <Text>/{data?.task_count}</Text>
-                      </Text>
+                      </Pressable>
+                    )}
+                    horizontal={true}
+                  />
+                )}
+              </QueryState>
+
+              {/* Add Project */}
+              <TouchableOpacity
+                className="pb-4"
+                onPress={() => {
+                  router.push("/add-project");
+                }}
+              >
+                <Ionicons name="add" size={24} color={appColors.primary[500]} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Project overview card */}
+            <QueryState
+              query={projectDetailsQuery}
+              loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
+              // emptyFallback={
+              //   <View className="my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+              //     <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+              //       No data
+              //     </Text>
+              //   </View>
+              // }
+              emptyFallback={null}
+            >
+              {(data) => (
+                <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
+                  {/* Project name */}
+                  <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
+                    {data?.name}
+                  </Text>
+                  {data?.description && (
+                    <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
+                      {data?.description}
+                    </Text>
+                  )}
+
+                  {/* Task completion */}
+                  <View className="gap-2">
+                    {/* Task completion progress bar */}
+                    <View
+                      className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+                    >
+                      <View
+                        className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
+                        style={{
+                          width: data
+                            ? `${Math.floor((data?.completed_task_count / data?.task_count) * 100)}%`
+                            : "0%",
+                        }}
+                      />
                     </View>
 
-                    {/* Estimate progress bar */}
-                    <View className="bg-neutral-100 dark:bg-neutral-700 gap-3 p-4 rounded-md">
-                      <Text className="text-neutral-700 dark:text-neutral-200 text-lg">
-                        Estimate
+                    <Text className="font-mono flex-row gap-2 text-sm ml-auto text-neutral-600 dark:text-neutral-200">
+                      <Text className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+                        {data?.completed_task_count}
                       </Text>
-                      <View className="flex-row gap-4">
-                        {/* Progress bar */}
-                        {/* <View
+                      <Text>/{data?.task_count}</Text>
+                    </Text>
+                  </View>
+
+                  {/* Estimate progress bar */}
+                  <View className="bg-neutral-100 dark:bg-neutral-700 gap-3 p-4 rounded-md">
+                    <Text className="text-neutral-700 dark:text-neutral-200 text-lg">
+                      Estimate
+                    </Text>
+                    <View className="flex-row gap-4">
+                      {/* Progress bar */}
+                      {/* <View
                           className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
                         >
                           <View
@@ -540,18 +536,18 @@ export default function ProjectsScreen() {
                             }}
                           />
                         </View> */}
-                        <EstimateProgressBar />
-                        {/* Estimate upper limit */}
-                        <Text className="font-mono text-neutral-700 dark:text-neutral-200">
-                          {estimateMultiple}x
-                        </Text>
-                      </View>
-                      {/* <Text>{estimateProgressLabel}</Text> */}
-                      <EstimateProgressLabel />
+                      <EstimateProgressBar />
+                      {/* Estimate upper limit */}
+                      <Text className="font-mono text-neutral-700 dark:text-neutral-200">
+                        {estimateMultiple}x
+                      </Text>
                     </View>
+                    {/* <Text>{estimateProgressLabel}</Text> */}
+                    <EstimateProgressLabel />
+                  </View>
 
-                    {/* Tasks Completed & Total Tasks */}
-                    {/* <View className="flex-row gap-2">
+                  {/* Tasks Completed & Total Tasks */}
+                  {/* <View className="flex-row gap-2">
                       <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
                         <View className="flex-row gap-2">
                           <Ionicons
@@ -593,62 +589,62 @@ export default function ProjectsScreen() {
                       </View>
                     </View> */}
 
-                    <View className="flex-row gap-2">
-                      {/* Time Spent */}
-                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                        <View className="flex-row gap-2">
-                          <Ionicons
-                            name="timer-outline"
-                            size={20}
-                            color={
-                              resolvedTheme === "light"
-                                ? colors.neutral[500]
-                                : colors.neutral[400]
-                            }
-                          />
-                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Time Spent
-                          </Text>
-                        </View>
-                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                          {data?.total_elapsed_minutes}m (
-                          {data?.total_elapsed_minutes}
-                          s)
+                  <View className="flex-row gap-2">
+                    {/* Time Spent */}
+                    <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                      <View className="flex-row gap-2">
+                        <Ionicons
+                          name="timer-outline"
+                          size={20}
+                          color={
+                            resolvedTheme === "light"
+                              ? colors.neutral[500]
+                              : colors.neutral[400]
+                          }
+                        />
+                        <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                          Time Spent
                         </Text>
                       </View>
-
-                      {/* Time Estimated */}
-                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                        <View className="flex-row gap-2">
-                          <Ionicons
-                            name="timer-outline"
-                            size={20}
-                            color={
-                              resolvedTheme === "light"
-                                ? colors.neutral[500]
-                                : colors.neutral[400]
-                            }
-                          />
-                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Time Estimated
-                          </Text>
-                        </View>
-                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                          {data?.total_estimated_minutes}m (
-                          {data?.total_estimated_seconds}s)
-                        </Text>
-                      </View>
+                      <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                        {data?.total_elapsed_minutes}m (
+                        {data?.total_elapsed_minutes}
+                        s)
+                      </Text>
                     </View>
 
-                    <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
-                      <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
-                        Tasks
+                    {/* Time Estimated */}
+                    <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                      <View className="flex-row gap-2">
+                        <Ionicons
+                          name="timer-outline"
+                          size={20}
+                          color={
+                            resolvedTheme === "light"
+                              ? colors.neutral[500]
+                              : colors.neutral[400]
+                          }
+                        />
+                        <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                          Time Estimated
+                        </Text>
+                      </View>
+                      <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                        {data?.total_estimated_minutes}m (
+                        {data?.total_estimated_seconds}s)
                       </Text>
+                    </View>
+                  </View>
 
-                      <TaskFilter onChange={(tab) => setTaskTab(tab)} />
+                  <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
+                    <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
+                      Tasks
+                    </Text>
 
-                      {/* Quick add task */}
-                      {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
+                    <TaskFilter onChange={(tab) => setTaskTab(tab)} />
+
+                    {/* Quick add task */}
+                    {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
                     <Checkbox
                       className="size-5 rounded-full"
                       color={"#3b82f6"}
@@ -679,13 +675,12 @@ export default function ProjectsScreen() {
                     />
                   </View> */}
 
-                      {/* <TaskList tasks={tasks} /> */}
-                    </View>
+                    {/* <TaskList tasks={tasks} /> */}
                   </View>
-                )}
-              </QueryState>
-            </View>
-          </>
+                </View>
+              )}
+            </QueryState>
+          </View>
         }
         // ListFooterComponent={
         //   taskTab === "completed" ? null : (
