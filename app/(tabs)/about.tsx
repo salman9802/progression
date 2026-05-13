@@ -19,7 +19,7 @@ export default function AboutScreen() {
         className="rounded-lg mx-auto size-52 mb-8"
       />
       <View className=" flex-1 flex flex-col gap-2 self-start w-full">
-        <Text className="text-neutral-800 dark:text-neutral-300">
+        {/* <Text className="text-neutral-800 dark:text-neutral-300">
           <Text className="font-bold text-primary-500">Developed by:</Text>{" "}
           Salman
         </Text>
@@ -28,7 +28,23 @@ export default function AboutScreen() {
           {Application.nativeApplicationVersion} (
           {Application.nativeBuildVersion}) (
           <Text className="italic">prototype</Text>)
-        </Text>
+        </Text> */}
+
+        {/* App Details */}
+        <View className="flex-row items-center justify-center gap-2">
+          <Text className="font-bold text-neutral-700 dark:text-neutral-300">
+            Salman
+          </Text>
+          <Text className="font-extrabold text-primary-500">|</Text>
+          <Text>
+            <Text className="font-bold text-neutral-700 dark:text-neutral-300">
+              {Application.nativeApplicationVersion}
+            </Text>{" "}
+            <Text className="italic text-neutral-600 dark:text-neutral-400">
+              ({Application.nativeBuildVersion})
+            </Text>
+          </Text>
+        </View>
 
         {/* Settings */}
         <View className="flex flex-col gap-6 mt-4 p-3 rounded-md bg-neutral-50 dark:bg-neutral-800 w-full">
