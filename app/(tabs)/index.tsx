@@ -1027,6 +1027,7 @@ export default function ProjectsScreen() {
           quickAddRef.current?.close();
         }}
         placeholder="Quick Add Task"
+        className="pr-20"
         // open={quickAddOpen}
       />
 
