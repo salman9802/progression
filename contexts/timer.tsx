@@ -1,3 +1,4 @@
+import { stopTimer as stopTimerFn } from "@/db/queries/tasks";
 import { TTaskDetails } from "@/db/schema";
 import { useStartTimer, useStopTimer } from "@/hooks/tasks";
 import React from "react";
@@ -39,22 +40,24 @@ export const TimerProvider = ({ children }: { children: React.ReactNode }) => {
 
   // stop timer
   const stopTimerMutation = useStopTimer();
-  const stopTimer = () => {
+  const stopTimer = async () => {
     if (activeTask == null || startTime == null) return;
 
     const elapsed = Math.floor(Date.now() - startTime);
 
-    stopTimerMutation.mutate(
-      {
-        id: activeTask.id,
-        elapsed,
-      },
-      //   {
-      //     onError: (error) => {
-      //       console.error(error);
-      //     },
-      //   },
-    );
+    // stopTimerMutation.mutate(
+    //   {
+    //     id: activeTask.id,
+    //     elapsed,
+    //   },
+    //   {
+    //     onError: (error) => {
+    //       console.error(error);
+    //     },
+    //   },
+    // );
+
+    await stopTimerFn({ id: activeTask.id, elapsed });
 
     setActiveTask(null);
     setStartTime(null);

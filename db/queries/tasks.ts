@@ -244,4 +244,15 @@ export async function stopTimer({
   getDb().execSync(
     `UPDATE tasks SET elapsed_seconds = elapsed_seconds + ${elapsedSeconds}, timer_started_at = NULL WHERE id = '${id}'`,
   );
+  // try {
+  //   await getDb().runAsync(
+  //     `UPDATE tasks
+  //  SET elapsed_seconds = elapsed_seconds + ?,
+  //      timer_started_at = NULL
+  //  WHERE id = ?`,
+  //     [elapsedSeconds, id],
+  //   );
+  // } catch (error) {
+  //   console.error(error);
+  // }
 }
