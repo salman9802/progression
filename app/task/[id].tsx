@@ -21,7 +21,7 @@ import {
 import Logger from "@/lib/logger";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Entypo, Feather, FontAwesome5, Ionicons } from "@expo/vector-icons";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import { BlurView } from "expo-blur";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -263,84 +263,6 @@ const TaskScreen = () => {
     }
   };
 
-  // ------------------------- Estimate Progress bar -------------------------
-  const hasExceededEstimate = taskDetailsQuery.data
-    ? taskDetailsQuery.data.estimated_seconds <
-      taskDetailsQuery.data.elapsed_seconds
-    : false;
-  let estimateMultiple = 1,
-    i = 2;
-  if (taskDetailsQuery.data) {
-    while (
-      taskDetailsQuery.data.estimated_seconds * i <
-      taskDetailsQuery.data.elapsed_seconds
-    ) {
-      estimateMultiple = i;
-    }
-  }
-  const estimateProgressPercentage =
-    taskDetailsQuery.data && tasksQuery.data && tasksQuery.data.length !== 0
-      ? (taskDetailsQuery.data.elapsed_seconds /
-          taskDetailsQuery.data.estimated_seconds) *
-        100
-      : 0;
-  const EstimateProgressBar = () => {
-    return (
-      <View
-        className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
-      >
-        <View
-          className={`h-full rounded-[inherit] ${hasExceededEstimate ? "bg-red-500" : estimateProgressPercentage < 75 ? "bg-green-500" : "bg-orange-500"}`}
-          style={{
-            width: `${estimateProgressPercentage}%`,
-          }}
-        />
-      </View>
-    );
-  };
-
-  const EstimateProgressLabel = () => {
-    if (hasExceededEstimate)
-      return (
-        <Text className="px-4 py-2 rounded-md text-red-500 bg-red-500/10">
-          Estimate Exceeded (
-          {
-            <Text className="font-mono text-sm">
-              {Math.round(estimateProgressPercentage)}%
-            </Text>
-          }
-          )
-        </Text>
-      );
-    else {
-      if (estimateProgressPercentage < 75) {
-        return (
-          <Text className="px-4 py-2 rounded-md text-green-500 bg-green-500/10">
-            Within Estimate (
-            {
-              <Text className="font-mono text-sm">
-                {Math.round(estimateProgressPercentage)}%
-              </Text>
-            }
-            )
-          </Text>
-        );
-      } else {
-        return (
-          <Text className="px-4 py-2 rounded-md text-orange-500 bg-orange-500/10">
-            Within Estimate (
-            {
-              <Text className="font-mono text-sm">
-                {Math.round(estimateProgressPercentage)}%
-              </Text>
-            }
-            )
-          </Text>
-        );
-      }
-    }
-  };
-
   return (
     <Screen>
       <View className="flex-1 bg-neutral-100 dark:bg-neutral-900">
@@ -369,241 +291,10 @@ const TaskScreen = () => {
           ListHeaderComponent={
             <>
               <View className="items-center justify-start px-4 py-8 bg-neutral-100 dark:bg-neutral-900">
-                {/* Task overview card */}
-                <QueryState
-                  query={taskDetailsQuery}
-                  loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
-                  emptyFallback={
-                    <View className="h-[150] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
-                      <Text className="text-xl text-neutral-600 dark:text-neutral-500">
-                        No data
-                      </Text>
-                    </View>
-                  }
-                >
-                  {(data) => (
-                    <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
-                      <Pressable
-                        onPress={() => {
-                          if (activeTask) {
-                            stopTimer();
-                          } else {
-                            if (taskDetailsQuery.data)
-                              startTimer(taskDetailsQuery.data);
-                          }
-                        }}
-                        className="flex-row gap-3 items-center"
-                      >
-                        {activeTask ? (
-                          <Feather
-                            name="pause"
-                            size={18}
-                            color={appColors.primary[500]}
-                          />
-                        ) : (
-                          <Feather
-                            name="play"
-                            size={18}
-                            color={appColors.primary[500]}
-                          />
-                        )}
-                        {/* Project name */}
-                        <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
-                          {data?.name}
-                        </Text>
-                      </Pressable>
-                      {data?.description && (
-                        <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
-                          {data?.description}
-                        </Text>
-                      )}
-
-                      {/* Task completion */}
-                      <View className="gap-2">
-                        {/* Task completion progress bar */}
-                        <View
-                          className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
-                        >
-                          <View
-                            className={`h-full rounded-[inherit] bg-blue-500`}
-                            style={{
-                              width: data
-                                ? `${Math.floor((data?.completed_subtask_count / data?.subtask_count) * 100)}%`
-                                : "0%",
-                            }}
-                          />
-                        </View>
-
-                        <Text className="font-mono flex-row gap-2 text-sm ml-auto text-neutral-600 dark:text-neutral-200">
-                          <Text className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
-                            {data?.completed_subtask_count}
-                          </Text>
-                          <Text>/{data?.subtask_count}</Text>
-                        </Text>
-                      </View>
-
-                      {/* Estimate progress bar */}
-                      <View className="bg-neutral-100 dark:bg-neutral-700 gap-3 p-4 rounded-md">
-                        <Text className="text-neutral-700 dark:text-neutral-200 text-lg">
-                          Estimate
-                        </Text>
-                        <View className="flex-row gap-4">
-                          {/* Progress bar */}
-                          {/* <View
-                          className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
-                        >
-                          <View
-                            className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
-                            style={{
-                              width: data
-                                ? `${estimateProgressPercentage}%`
-                                : "0%",
-                            }}
-                          />
-                        </View> */}
-                          <EstimateProgressBar />
-                          {/* Estimate upper limit */}
-                          <Text className="font-mono text-neutral-700 dark:text-neutral-200">
-                            {estimateMultiple}x
-                          </Text>
-                        </View>
-                        {/* <Text>{estimateProgressLabel}</Text> */}
-                        <EstimateProgressLabel />
-                      </View>
-
-                      {/* Tasks Completed & Total Tasks */}
-                      {/* <View className="flex-row gap-2">
-                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                        <View className="flex-row gap-2">
-                          <Ionicons
-                            name="timer-outline"
-                            size={20}
-                            color={
-                              resolvedTheme === "light"
-                                ? colors.neutral[500]
-                                : colors.neutral[400]
-                            }
-                          />
-                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Tasks Completed
-                          </Text>
-                        </View>
-                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                          {data?.completed_task_count}
-                        </Text>
-                      </View>
-
-                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                        <View className="flex-row gap-2">
-                          <Ionicons
-                            name="timer-outline"
-                            size={20}
-                            color={
-                              resolvedTheme === "light"
-                                ? colors.neutral[500]
-                                : colors.neutral[400]
-                            }
-                          />
-                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Total Tasks
-                          </Text>
-                        </View>
-                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                          {data?.task_count}
-                        </Text>
-                      </View>
-                    </View> */}
-
-                      <View className="flex-row gap-2">
-                        {/* Time Spent */}
-                        <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                          <View className="flex-row gap-2">
-                            <Ionicons
-                              name="timer-outline"
-                              size={20}
-                              color={
-                                resolvedTheme === "light"
-                                  ? colors.neutral[500]
-                                  : colors.neutral[400]
-                              }
-                            />
-                            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                              Time Spent
-                            </Text>
-                          </View>
-                          <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.elapsed_minutes}m ({data?.elapsed_seconds}
-                            s)
-                          </Text>
-                        </View>
-
-                        {/* Time Estimated */}
-                        <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
-                          <View className="flex-row gap-2">
-                            <Ionicons
-                              name="timer-outline"
-                              size={20}
-                              color={
-                                resolvedTheme === "light"
-                                  ? colors.neutral[500]
-                                  : colors.neutral[400]
-                              }
-                            />
-                            <Text className="text-sm text-neutral-500 dark:text-neutral-400">
-                              Time Estimated
-                            </Text>
-                          </View>
-                          <Text className="font-mono text-neutral-800 dark:text-neutral-200">
-                            {data?.estimated_minutes}m (
-                            {data?.estimated_seconds}s)
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
-                        <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
-                          Tasks
-                        </Text>
-
-                        <TaskFilter onChange={(tab) => setTaskTab(tab)} />
-
-                        {/* Quick add task */}
-                        {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
-                    <Checkbox
-                      className="size-5 rounded-full"
-                      color={"#3b82f6"}
-                      style={{
-                        width: 18,
-                        height: 18,
-                        borderRadius: 9999,
-                      }}
-                      disabled={true}
-                    />
-                    <TextInput
-                      className="px-2 h-[32] text-sm flex-1"
-                      placeholder="Quick Add Task"
-                      style={{
-                        margin: 0,
-                        padding: 0,
-                        textAlignVertical: "center",
-                      }}
-                      value={quickAddText}
-                      onChangeText={setQuickAddText}
-                      returnKeyType="done"
-                      onSubmitEditing={() => {
-                        if (!quickAddText.trim()) return;
-
-                        quickAddTask(quickAddText);
-                        setQuickAddText("");
-                      }}
-                    />
-                  </View> */}
-
-                        {/* <TaskList tasks={tasks} /> */}
-                      </View>
-                    </View>
-                  )}
-                </QueryState>
+                <TaskOverviewCard
+                  taskDetailsQuery={taskDetailsQuery}
+                  tasksQuery={tasksQuery}
+                />
               </View>
             </>
           }
@@ -964,3 +655,355 @@ const TaskScreen = () => {
 };
 
 export default TaskScreen;
+
+const TaskOverviewCard = ({
+  taskDetailsQuery,
+  tasksQuery,
+}: {
+  taskDetailsQuery: UseQueryResult<TTaskDetails | null, Error>;
+  tasksQuery: UseQueryResult<TTaskDetails[] | null, Error>;
+}) => {
+  const [taskTab, setTaskTab] = useState<TaskTab>("pending");
+  const { resolvedTheme } = useTheme();
+  const { activeTask, startTimer, stopTimer } = useTimer();
+
+  // ------------------------- Estimate Progress bar -------------------------
+  const hasExceededEstimate = taskDetailsQuery.data
+    ? taskDetailsQuery.data.estimated_seconds <
+      taskDetailsQuery.data.elapsed_seconds
+    : false;
+  let estimateMultiple = 1,
+    i = 2;
+  if (taskDetailsQuery.data) {
+    while (
+      taskDetailsQuery.data.estimated_seconds * i <
+      taskDetailsQuery.data.elapsed_seconds
+    ) {
+      estimateMultiple = i;
+    }
+  }
+  const estimateProgressPercentage =
+    taskDetailsQuery.data && tasksQuery.data && tasksQuery.data.length !== 0
+      ? (taskDetailsQuery.data.elapsed_seconds /
+          taskDetailsQuery.data.estimated_seconds) *
+        100
+      : 0;
+
+  const timeSavedSeconds =
+    taskDetailsQuery.data &&
+    taskDetailsQuery.data.total_elapsed_seconds != 0 &&
+    tasksQuery.data &&
+    tasksQuery.data.length !== 0
+      ? taskDetailsQuery.data.total_estimated_seconds -
+        taskDetailsQuery.data.total_elapsed_seconds
+      : 0;
+  const EstimateProgressBar = () => {
+    return (
+      <View
+        className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+      >
+        <View
+          className={`h-full rounded-[inherit] ${hasExceededEstimate ? "bg-red-500" : estimateProgressPercentage < 75 ? "bg-green-500" : "bg-orange-500"}`}
+          style={{
+            width: `${estimateProgressPercentage}%`,
+          }}
+        />
+      </View>
+    );
+  };
+
+  const EstimateProgressLabel = () => {
+    if (hasExceededEstimate)
+      return (
+        <Text className="px-4 py-2 rounded-md text-red-500 bg-red-500/10">
+          Estimate Exceeded (
+          {
+            <Text className="font-mono text-sm">
+              {Math.round(estimateProgressPercentage)}%
+            </Text>
+          }
+          )
+        </Text>
+      );
+    else {
+      if (estimateProgressPercentage < 75) {
+        return (
+          <Text className="px-4 py-2 rounded-md text-green-500 bg-green-500/10">
+            Within Estimate (
+            {
+              <Text className="font-mono text-sm">
+                {Math.round(estimateProgressPercentage)}%
+              </Text>
+            }
+            )
+          </Text>
+        );
+      } else {
+        return (
+          <Text className="px-4 py-2 rounded-md text-orange-500 bg-orange-500/10">
+            Within Estimate (
+            {
+              <Text className="font-mono text-sm">
+                {Math.round(estimateProgressPercentage)}%
+              </Text>
+            }
+            )
+          </Text>
+        );
+      }
+    }
+  };
+
+  const TimeSaved = () => {
+    const savedMinutes =
+      timeSavedSeconds !== 0 ? Math.round(timeSavedSeconds / 60) : 0;
+
+    if (timeSavedSeconds > 0)
+      return (
+        <Text className="font-mono px-4 py-2 rounded-md text-green-500 bg-green-500/10">
+          {savedMinutes}m{timeSavedSeconds}s Saved
+        </Text>
+      );
+    else if (timeSavedSeconds < 0)
+      return (
+        <Text className="font-mono px-4 py-2 rounded-md text-red-500 bg-red-500/10">
+          Exceeded by {savedMinutes}m {timeSavedSeconds}s
+        </Text>
+      );
+    else
+      return (
+        <Text className="font-mono px-4 py-2 rounded-md text-neutral-500 bg-neutral-500/10">
+          No Time Saved
+        </Text>
+      );
+  };
+
+  console.log("timeSavedSeconds", timeSavedSeconds);
+  return (
+    <QueryState
+      query={taskDetailsQuery}
+      loadingFallback={<Skeleton className="h-[250] my-4 w-full" />}
+      emptyFallback={
+        <View className="h-[150] my-4 w-full rounded-md justify-center items-center bg-neutral-50 dark:bg-neutral-800">
+          <Text className="text-xl text-neutral-600 dark:text-neutral-500">
+            No data
+          </Text>
+        </View>
+      }
+    >
+      {(data) => (
+        <View className="min-h-[150] w-full align-top p-6 bg-neutral-50 dark:bg-neutral-800">
+          <Pressable
+            onPress={() => {
+              if (activeTask) {
+                stopTimer();
+              } else {
+                if (taskDetailsQuery.data) startTimer(taskDetailsQuery.data);
+              }
+            }}
+            className="flex-row gap-3 items-center"
+          >
+            {activeTask ? (
+              <Feather name="pause" size={18} color={appColors.primary[500]} />
+            ) : (
+              <Feather name="play" size={18} color={appColors.primary[500]} />
+            )}
+            {/* Project name */}
+            <Text className="text-3xl font-semibold text-neutral-800 dark:text-neutral-300">
+              {data?.name}
+            </Text>
+          </Pressable>
+          {data?.description && (
+            <Text className=" text-neutral-600 mt-2 dark:text-neutral-300">
+              {data?.description}
+            </Text>
+          )}
+
+          {/* Task completion */}
+          <View className="gap-2">
+            {/* Task completion progress bar */}
+            <View
+              className={`my-2 w-full h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+            >
+              <View
+                className={`h-full rounded-[inherit] bg-blue-500`}
+                style={{
+                  width: data
+                    ? `${Math.floor((data?.completed_subtask_count / data?.subtask_count) * 100)}%`
+                    : "0%",
+                }}
+              />
+            </View>
+
+            <Text className="font-mono flex-row gap-2 text-sm ml-auto text-neutral-600 dark:text-neutral-200">
+              <Text className="text-base font-semibold text-neutral-950 dark:text-neutral-50">
+                {data?.completed_subtask_count}
+              </Text>
+              <Text>/{data?.subtask_count}</Text>
+            </Text>
+          </View>
+
+          {/* Estimate progress bar */}
+          <View className="bg-neutral-100 dark:bg-neutral-700 gap-3 p-4 rounded-md">
+            <Text className="text-neutral-700 dark:text-neutral-200 text-lg">
+              Estimate
+            </Text>
+            <View className="flex-row gap-4">
+              {/* Progress bar */}
+              {/* <View
+                          className={`my-2 grow h-2 rounded-full overflow-hidden ${resolvedTheme === "light" ? "bg-neutral-200" : "bg-neutral-600"}`}
+                        >
+                          <View
+                            className={`h-full rounded-[inherit] ${data ? data.color : "bg-blue-500"}`}
+                            style={{
+                              width: data
+                                ? `${estimateProgressPercentage}%`
+                                : "0%",
+                            }}
+                          />
+                        </View> */}
+              <EstimateProgressBar />
+              {/* Estimate upper limit */}
+              <Text className="font-mono text-neutral-700 dark:text-neutral-200">
+                {estimateMultiple}x
+              </Text>
+            </View>
+            {/* <Text>{estimateProgressLabel}</Text> */}
+            <EstimateProgressLabel />
+            <TimeSaved />
+          </View>
+
+          {/* Tasks Completed & Total Tasks */}
+          {/* <View className="flex-row gap-2">
+                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                        <View className="flex-row gap-2">
+                          <Ionicons
+                            name="timer-outline"
+                            size={20}
+                            color={
+                              resolvedTheme === "light"
+                                ? colors.neutral[500]
+                                : colors.neutral[400]
+                            }
+                          />
+                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Tasks Completed
+                          </Text>
+                        </View>
+                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                          {data?.completed_task_count}
+                        </Text>
+                      </View>
+
+                      <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+                        <View className="flex-row gap-2">
+                          <Ionicons
+                            name="timer-outline"
+                            size={20}
+                            color={
+                              resolvedTheme === "light"
+                                ? colors.neutral[500]
+                                : colors.neutral[400]
+                            }
+                          />
+                          <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Total Tasks
+                          </Text>
+                        </View>
+                        <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                          {data?.task_count}
+                        </Text>
+                      </View>
+                    </View> */}
+
+          <View className="flex-row gap-2">
+            {/* Time Spent */}
+            <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+              <View className="flex-row gap-2">
+                <Ionicons
+                  name="timer-outline"
+                  size={20}
+                  color={
+                    resolvedTheme === "light"
+                      ? colors.neutral[500]
+                      : colors.neutral[400]
+                  }
+                />
+                <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                  Time Spent
+                </Text>
+              </View>
+              <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                {data?.elapsed_minutes}m ({data?.elapsed_seconds}
+                s)
+              </Text>
+            </View>
+
+            {/* Time Estimated */}
+            <View className="flex-1 basis-0 my-2 bg-neutral-100 dark:bg-neutral-700 gap-3 px-4 py-2 rounded-md">
+              <View className="flex-row gap-2">
+                <Ionicons
+                  name="timer-outline"
+                  size={20}
+                  color={
+                    resolvedTheme === "light"
+                      ? colors.neutral[500]
+                      : colors.neutral[400]
+                  }
+                />
+                <Text className="text-sm text-neutral-500 dark:text-neutral-400">
+                  Time Estimated
+                </Text>
+              </View>
+              <Text className="font-mono text-neutral-800 dark:text-neutral-200">
+                {data?.estimated_minutes}m ({data?.estimated_seconds}s)
+              </Text>
+            </View>
+          </View>
+
+          <View className="mt-4 p-4 w-full gap-2 bg-neutral-50 dark:bg-neutral-800">
+            <Text className="text-2xl font-semibold text-neutral-800 dark:text-neutral-300">
+              Tasks
+            </Text>
+
+            <TaskFilter onChange={(tab) => setTaskTab(tab)} />
+
+            {/* Quick add task */}
+            {/* <View className="-mt-2 px-4 flex-row items-center gap-4">
+                    <Checkbox
+                      className="size-5 rounded-full"
+                      color={"#3b82f6"}
+                      style={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: 9999,
+                      }}
+                      disabled={true}
+                    />
+                    <TextInput
+                      className="px-2 h-[32] text-sm flex-1"
+                      placeholder="Quick Add Task"
+                      style={{
+                        margin: 0,
+                        padding: 0,
+                        textAlignVertical: "center",
+                      }}
+                      value={quickAddText}
+                      onChangeText={setQuickAddText}
+                      returnKeyType="done"
+                      onSubmitEditing={() => {
+                        if (!quickAddText.trim()) return;
+
+                        quickAddTask(quickAddText);
+                        setQuickAddText("");
+                      }}
+                    />
+                  </View> */}
+
+            {/* <TaskList tasks={tasks} /> */}
+          </View>
+        </View>
+      )}
+    </QueryState>
+  );
+};
