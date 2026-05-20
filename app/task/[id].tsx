@@ -437,12 +437,12 @@ const TaskScreen = () => {
                   // height: 400,
                   // height: "fit-content",
                   height: "50%",
-                  backgroundColor: "white",
+                  // backgroundColor: "white",
                   padding: 16,
                   borderTopLeftRadius: 16,
                   borderTopRightRadius: 16,
                 }}
-                className="relative z-20"
+                className="relative z-20 bg-neutral-200 dark:bg-neutral-600"
               >
                 {/* <View
                 {...panResponderRef.panHandlers}

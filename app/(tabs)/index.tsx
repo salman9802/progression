@@ -48,6 +48,7 @@ export default function ProjectsScreen() {
   const [taskTab, setTaskTab] = useState<TaskTab>("pending");
 
   const { resolvedTheme } = useTheme();
+  console.log("resolvedTheme", resolvedTheme);
   const [currentProjectId, setCurrentProjectId] = useState<string>();
 
   // projects
@@ -613,12 +614,12 @@ export default function ProjectsScreen() {
                 // height: 400,
                 // height: "fit-content",
                 height: "50%",
-                backgroundColor: "white",
+                // backgroundColor: "white",
                 padding: 16,
                 borderTopLeftRadius: 16,
                 borderTopRightRadius: 16,
               }}
-              className="relative z-20"
+              className="relative z-20 bg-neutral-200 dark:bg-neutral-600"
             >
               {/* <View
                 {...panResponderRef.panHandlers}

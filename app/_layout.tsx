@@ -23,6 +23,7 @@ import {
 import { Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import tailwindColors from "tailwindcss/colors";
 import "../global.css";
 
 export {
@@ -87,7 +88,9 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <QueryClientProvider client={queryClient}>
           <TimerProvider>
-            <RootLayoutNav />
+            <ThemeProvider>
+              <RootLayoutNav />
+            </ThemeProvider>
           </TimerProvider>
         </QueryClientProvider>
       </GestureHandlerRootView>
@@ -133,11 +136,25 @@ const queryClient = new QueryClient({
 function RootLayoutNav() {
   const { resolvedTheme } = useTheme();
 
+  console.log("resolvedTheme", resolvedTheme);
+
+  // <ThemeProvider /* value={colorScheme === "dark" ? DarkTheme : DefaultTheme} */ >
   return (
-    <ThemeProvider /* value={colorScheme === "dark" ? DarkTheme : DefaultTheme} */
-    >
+    <>
       <Stack
-      /*  screenOptions={{
+        screenOptions={{
+          headerStyle: {
+            backgroundColor:
+              resolvedTheme === "dark"
+                ? tailwindColors.neutral[950]
+                : tailwindColors.neutral[50],
+          },
+          headerTintColor:
+            resolvedTheme === "dark"
+              ? tailwindColors.neutral[300]
+              : tailwindColors.neutral[800],
+        }}
+        /*  screenOptions={{
           headerStyle: {
             backgroundColor:
               resolvedTheme === "dark"
@@ -200,14 +217,27 @@ function RootLayoutNav() {
         />
         <Stack.Screen
           name="task/[id]"
-          options={{
+          options={() => ({
             title: "Task",
+            // headerStyle: {
+            //   // backgroundColor:
+            //   //   resolvedTheme === "dark"
+            //   //     ? tailwindColors.neutral[950]
+            //   //     : tailwindColors.neutral[50],
+            //   // backgroundColor: "#f00",
+            //   backgroundColor: resolvedTheme === "dark" ? "#f00" : "#0f0",
+            // },
 
+            // headerTintColor:
+            //   resolvedTheme === "dark"
+            //     ? tailwindColors.neutral[300]
+            //     : tailwindColors.neutral[800],
             headerRight: () => <HeaderRight />,
-          }}
+          })}
         />
       </Stack>
       <Toast config={toastConfig} />
-    </ThemeProvider>
+    </>
   );
+  // </ThemeProvider>
 }

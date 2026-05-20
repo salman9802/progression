@@ -58,7 +58,6 @@ import {
   TextInputProps,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CTextInput from "../CTextInput";
 
 type QuickAddTaskProps = TextInputProps;
@@ -70,7 +69,7 @@ export type QuickAddTaskRef = {
 
 const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
   ({ ...inputProps }, ref) => {
-    const insets = useSafeAreaInsets();
+    // const insets = useSafeAreaInsets();
     const sheetRef = useRef<BottomSheetModal>(null);
 
     const snapPoints = ["25%", "50%"];
@@ -168,13 +167,13 @@ const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
             <Animated.View
               style={{
                 transform: [{ translateY }],
-                backgroundColor: "white",
+                // backgroundColor: "white",
                 padding: 16,
-                paddingBottom: 16 + insets.bottom,
+                // paddingBottom: 16 + insets.bottom,
                 borderTopLeftRadius: 16,
                 borderTopRightRadius: 16,
               }}
-              className="relative"
+              className="relative bg-neutral-200 dark:bg-neutral-600"
             >
               <CTextInput /* ref={inputRef} */ {...inputProps} autoFocus />
               <Text className="absolute right-6 top-1/2 text-mono text-sm px-2 py-1 rounded-md bg-primary-300/10 text-primary-300">
