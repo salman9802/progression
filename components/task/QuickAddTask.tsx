@@ -107,6 +107,16 @@ const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
 
     const translateY = useRef(new Animated.Value(screenHeight)).current;
 
+    // const inputRef = useRef<TextInput>(null);
+    // useEffect(() => {
+    //   // console.log("inputRef", inputRef);
+    //   const timeout = setTimeout(() => {
+    //     inputRef.current?.focus();
+    //   }, 500);
+
+    //   return () => clearTimeout(timeout);
+    // }, [open]);
+
     useEffect(() => {
       if (open) {
         Animated.timing(translateY, {
@@ -166,7 +176,7 @@ const QuickAddTask = forwardRef<QuickAddTaskRef, QuickAddTaskProps>(
               }}
               className="relative"
             >
-              <CTextInput {...inputProps} />
+              <CTextInput /* ref={inputRef} */ {...inputProps} autoFocus />
               <Text className="absolute right-6 top-1/2 text-mono text-sm px-2 py-1 rounded-md bg-primary-300/10 text-primary-300">
                 <Text>Enter</Text>
                 <AntDesign name="enter" size={12} color={colors.primary[500]} />

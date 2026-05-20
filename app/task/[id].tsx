@@ -778,7 +778,6 @@ const TaskOverviewCard = ({
       );
   };
 
-  console.log("timeSavedSeconds", timeSavedSeconds);
   return (
     <QueryState
       query={taskDetailsQuery}
